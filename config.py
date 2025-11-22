@@ -14,12 +14,12 @@ class Config(object):
     # pyro client config
     API_ID    = os.environ.get("API_ID", "23537462")
     API_HASH  = os.environ.get("API_HASH", "c9599a5aa61ee8ca4f5e778d20c61f24")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7845096754:AAHviNaeyLu6kkf5_Ekt4AqsJV_m6b5S5cI")
     PORT = os.environ.get("PORT", "8980")
 
     # database config
     DB_NAME = os.environ.get("DB_NAME", "cluster0")     
-    DB_URL  = os.environ.get("DB_URL", "")
+    DB_URL  = os.environ.get("DB_URL", "mongodb+srv://phrolovaxrobot:p0SFEz825QuqzwTi@cluster0.sy26fqm.mongodb.net/?retryWrites=true&w=majority")
  
     # other configs
     ADMIN_URL = "https://t.me/EternalsHelplineBot"
