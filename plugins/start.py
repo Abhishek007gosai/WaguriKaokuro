@@ -695,10 +695,15 @@ async def send_verification_message(client, message: Message):
         return None
     
     # Send button with shortlink (e.g., https://lksfy.com/eARog)
-    buttons = InlineKeyboardMarkup([[
-        InlineKeyboardButton("• Vᴇʀɪғʏ •", url=shortlink)
-    ]])
-    
+    buttons = InlineKeyboardMarkup([
+    [
+        InlineKeyboardButton("• ᴄʟɪᴄᴋ ʜᴇʀᴇ ᴛᴏ ᴠᴇʀɪғʏ •", url=shortlink)
+    ],
+    [
+        InlineKeyboardButton("ʜᴏᴡ ᴛᴏ ᴠᴇʀɪғʏ/ᴠɪᴅᴇᴏ ᴛᴜᴛᴏʀɪᴀʟ", url="https://t.me/+wekKcN1tjbAxY2U1")
+    ]
+])
+   
     await message.reply_text(
         f"ʜᴇʏ {message.from_user.mention},\n\n"
         "‼️ ʏᴏᴜ'ʀᴇ ɴᴏᴛ ᴠᴇʀɪғɪᴇᴅ ᴛᴏᴅᴀʏ ‼️\n\n"
