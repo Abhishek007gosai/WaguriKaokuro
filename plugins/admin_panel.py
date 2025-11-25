@@ -584,7 +584,7 @@ async def plan(client, message):
     PREMIUM_TXT = f"<b><blockquote>sʜᴀʀᴇ ʙᴏᴛ ʟɪɴᴋ ᴛᴏ ʏᴏᴜʀ ғʀɪᴇɴᴅs ᴀɴᴅ ɢᴇᴛ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴏʀᴅɪɴɢ ᴛᴏ ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs</blockquote>- ᴀᴠᴀɪʟᴀʙʟᴇ ᴘʟᴀɴs -\n- 05 sʜᴀʀᴇ - 1 ᴡᴇᴇᴋ\n- 10 sʜᴀʀᴇ - 1 ᴍᴏɴᴛʜs\n- 20 sʜᴀʀᴇ - 3 ᴍᴏɴᴛʜs\n- 30 sʜᴀʀᴇ - 6 ᴍᴏɴᴛʜs\n- 40 sʜᴀʀᴇ - 1 year<blockquote>ᴘʀᴇᴍɪᴜᴍ ғᴇᴀᴛᴜʀᴇs\n○ ɴᴏ ɴᴇᴇᴅ ᴛᴏ ᴠᴇʀɪғʏ\n○ ɴᴏ ɴᴇᴇᴅ ᴛᴏ ᴏᴘᴇɴ ʟɪɴᴋ,\n○ ᴅɪʀᴇᴄᴛ ᴀᴜᴛᴏ ʀᴇɴᴀᴍɪɴɢ ғᴇᴀᴛᴜʀᴇ\n○ ᴀᴅ-ғʀᴇᴇ ᴇxᴘᴇʀɪᴇɴᴄᴇ\n○ ᴜɴʟɪᴍɪᴛᴇᴅ ᴀʟʟ</blockquote>\n<blockquote>‼️ᴀғᴛᴇʀ sʜᴀʀɪɴɢ ᴀ ʀᴇғᴇʀᴇɴᴄᴇ ʟɪɴᴋ ᴘʟᴇᴀsᴇ ɢɪᴠᴇ ᴜs sᴏᴍᴇ ᴛɪᴍᴇ ᴛᴏ ᴀᴅᴅ ʏᴏᴜ ɪɴ ᴛʜᴇ ᴘʀᴇᴍɪᴜᴍ</blockquote>\n✨ɪғ ʏᴏᴜ ᴡᴀɴᴛ ʏᴏᴜ ᴄᴀɴ ᴅᴏɴᴀᴛᴇ ᴀɴʏ ᴀᴍᴏᴜɴᴛ @EternalsHelplineBot\n\nᴄʟɪᴄᴋ ʜᴇʀᴇ ᴛᴏ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴀᴄᴛɪᴠᴇ ᴘʟᴀɴs /myplan</b>"
 
     await message.reply_photo(
-        photo="https://envs.sh/Wdj.jpg",
+        photo="https://litter.catbox.moe/bxry4e.jpg",
         caption=PREMIUM_TXT,
         reply_markup=keyboard)
 
