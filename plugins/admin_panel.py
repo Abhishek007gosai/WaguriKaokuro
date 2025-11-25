@@ -603,13 +603,22 @@ async def restart_bot(b, m):
 async def tutorial(bot, message):
     user_id = message.from_user.id
     format_template = await rexbots.get_format_template(user_id)
+
     await message.reply_text(
-        text=Config.FILE_NAME_TXT.format(format_template=format_template),
+        text=Config.FILE_NAME_TXT.format(
+            format_template=format_template,
+            season="{season}",
+            episode="{episode}"
+        ),
         disable_web_page_preview=True,
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("• Sᴜᴘᴘᴏʀᴛ •", url="https://t.me/EternalsHelplineBot"), InlineKeyboardButton("•⚡Mᴀɪɴ ʜᴜʙ •", url="https://t.me/AnimeNexusNetwork/160")]
+            [
+                InlineKeyboardButton("• Sᴜᴘᴘᴏʀᴛ •", url="https://t.me/EternalsHelplineBot"),
+                InlineKeyboardButton("•⚡Mᴀɪɴ ʜᴜʙ •", url="https://t.me/AnimeNexusNetwork/160")
+            ]
         ])
     )
+
 # ----------------------------------------
 # 𝐌𝐀𝐃𝐄 𝐁𝐘 𝐀𝐁𝐇𝐈
 # 𝐓𝐆 𝐈𝐃 : @𝐂𝐋𝐔𝐓𝐂𝐇𝟎𝟎𝟖
