@@ -86,6 +86,7 @@ async def cb_handler(client, query: CallbackQuery):
                     [InlineKeyboardButton('• ʜᴏᴍᴇ •', callback_data='home')]
                 ])
             )
+            
         elif data == "sequence":
             await query.message.edit_text(
                 "<b>Sᴇɴᴅ ᴍᴇ ғɪʟᴇs ᴀɴᴅ I ᴡɪʟʟ ɢɪᴠᴇ ʏᴏᴜ ᴛʜᴀᴛ ғɪʟᴇs ɪɴ ᴀ ᴘᴇʀғᴇᴄᴛ sᴇǫᴜᴇɴᴄᴇ...!! \n\nʜᴇʀᴇ ɪꜱ ʜᴇʟᴘ ᴍᴇɴᴜ ғᴏʀ sᴇǫᴜᴇɴᴄᴇ ᴄᴏᴍᴍᴀɴᴅꜱ: \n\nᴀᴡᴇsᴏᴍᴇ Cᴏᴍᴍᴀɴᴅs🫧 \n\n/start_sequence - Tᴏ sᴛᴀʀᴛ sᴇǫᴜᴇɴᴄᴇ. \n/end_sequence - Tᴏ ᴇɴᴅ sᴇǫᴜᴇɴᴄᴇ.</b>",
@@ -96,18 +97,18 @@ async def cb_handler(client, query: CallbackQuery):
                 ]])
             )
             
-       elif data == "file_names":
-           format_template = await rexbots.get_format_template(user_id)
+        elif data == "file_names":
+            format_template = await rexbots.get_format_template(user_id)
 
-           await query.message.edit_text(
-               text=Config.FILE_NAME_TXT.format(format_template=format_template),
-               disable_web_page_preview=True,
-               reply_markup=InlineKeyboardMarkup([
-                   [
-                       InlineKeyboardButton("• ᴄʟᴏsᴇ", callback_data="close"),
-                       InlineKeyboardButton("ʙᴀᴄᴋ •", callback_data="help")
-                   ]
-              ])
+            await query.message.edit_text(
+                text=Config.FILE_NAME_TXT.format(format_template=format_template),
+                disable_web_page_preview=True,
+                reply_markup=InlineKeyboardMarkup([
+                    [
+                        InlineKeyboardButton("• ᴄʟᴏsᴇ", callback_data="close"),
+                        InlineKeyboardButton("ʙᴀᴄᴋ •", callback_data="help")
+                    ]
+                ])
         )
 
         elif data == "donate":
