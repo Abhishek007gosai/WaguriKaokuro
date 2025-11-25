@@ -96,6 +96,21 @@ async def cb_handler(client, query: CallbackQuery):
                     InlineKeyboardButton("ʙᴀᴄᴋ", callback_data="help")
                 ]])
             )            
+        elif data == "meta":
+            await query.message.edit_text("<b>--Metadata Settings:--</b> \n\n➜ /metadata: Turn on or off metadata. \n\n<b><u>Description</u></b> <b><i>: Metadata will change MKV video files including all audio, streams, and subtitle titles.</i></b>",
+                disable_web_page_preview=True,
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("• ᴄʟᴏsᴇ", callback_data="close"), InlineKeyboardButton("ʙᴀᴄᴋ •", callback_data="help")]
+                ])
+                                         )
+        elif data == "donate":
+            await query.message.edit_text(
+                text=Config.DONATE_TXT,
+                disable_web_page_preview=True,
+                reply_markup=InlineKeyboardMarkup([
+                    [InlineKeyboardButton("• ʙᴀᴄᴋ", callback_data="help"), InlineKeyboardButton("ᴏᴡɴᴇʀ •", url='https://t.me/EternalsHelplineBot')]
+                ])
+            )
         elif data == "file_names":
             format_template = await rexbots.get_format_template(user_id)
             await query.message.edit_text(
@@ -108,27 +123,6 @@ async def cb_handler(client, query: CallbackQuery):
                     ]
                 ])
             )
-        elif data == "donate":
-            await query.message.edit_text(
-                text=Config.DONATE_TXT,
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("• ʙᴀᴄᴋ", callback_data="help"), InlineKeyboardButton("ᴏᴡɴᴇʀ •", url='https://t.me/EternalsHelplineBot')]
-                ])
-            )
-       elif data == "file_names":
-           format_template = await rexbots.get_format_template(user_id)
-
-           await query.message.edit_text(
-               text=Config.FILE_NAME_TXT.format(format_template=format_template),
-               disable_web_page_preview=True,
-               reply_markup=InlineKeyboardMarkup([
-            [
-                        InlineKeyboardButton("• ᴄʟᴏsᴇ", callback_data="close"),
-                InlineKeyboardButton("ʙᴀᴄᴋ •", callback_data="help")
-            ]
-        ])
-    )
         elif data == "thumbnail":
             await query.message.edit_text(
                 text=Config.THUMBNAIL_TXT,
