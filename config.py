@@ -49,7 +49,7 @@ class Config(object):
 ➲ ᴇᴘɪꜱᴏᴅᴇ - ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ᴇᴘɪꜱᴏᴅᴇ ɴᴜᴍʙᴇʀ
 ➲ ǫᴜᴀʟɪᴛʏ - ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ǫᴜᴀʟɪᴛʏ
 
-<b>‣ ꜰᴏʀ ᴇx:- </b> <code> /autorename [S{season} E{episode}] Your Anime Name [Quality] [Audio] @AnimeNexusNetwork</b>
+<b>‣ ꜰᴏʀ ᴇx:- </b>`/autorename [S{season} E{episode}] Your Anime Name [Quality] [Audio] @AnimeNexusNetwork`
 
 Don't use .mkv/.mp4, Bot Will Detect The Format Automatically
 
