@@ -123,6 +123,27 @@ async def cb_handler(client, query: CallbackQuery):
                     ]
                 ])
             )
+        elif data == "file_names":
+            format_template = await rexbots.get_format_template(user_id)
+
+            safe_dict = {
+                "format_template": format_template,
+                "season": "",
+                "episode": "",
+                "name": "",
+                "quality": "",
+                "audio": ""
+            }
+            await query.message.edit_text(
+                 text=Config.FILE_NAME_TXT.format_map(safe_dict),
+                 disable_web_page_preview=True,
+                 reply_markup=InlineKeyboardMarkup([
+                     [
+                         InlineKeyboardButton("• ᴄʟᴏsᴇ", callback_data="close"),
+                         InlineKeyboardButton("ʙᴀᴄᴋ •", callback_data="help")
+                     ]
+                 ])
+            )
         elif data == "thumbnail":
             await query.message.edit_text(
                 text=Config.THUMBNAIL_TXT,
