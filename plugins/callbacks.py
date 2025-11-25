@@ -95,6 +95,7 @@ async def cb_handler(client, query: CallbackQuery):
                     InlineKeyboardButton("ʙᴀᴄᴋ", callback_data="help")
                 ]])
             )
+            
        elif data == "file_names":
            format_template = await rexbots.get_format_template(user_id)
 
