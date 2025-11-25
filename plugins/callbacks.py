@@ -108,6 +108,7 @@ async def cb_handler(client, query: CallbackQuery):
                    ]
               ])
         )
+
         elif data == "donate":
             await query.message.edit_text(
                 text=Config.DONATE_TXT,
