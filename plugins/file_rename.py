@@ -442,8 +442,8 @@ def extract_episode_number(filename):
         r'HDR',
         r'H\.264', r'H\.265',
         r'(?:19|20)\d{2}',
-        r'Multi(?:audio)?',
-        r'Dual(?:audio)?',
+        r'MULTI(?:audio)?',
+        r'DUAL(?:audio)?',
     ]
     quality_pattern_for_exclusion = r'(?:' + '|'.join([f'(?:[\s._-]*{ind})' for ind in quality_and_year_indicators]) + r')'
 
@@ -477,7 +477,7 @@ def extract_episode_number(filename):
 
                     if 1 <= episode_num <= 9999:
                         if episode_num in [360, 480, 720, 1080, 1440, 2160, 2020, 2021, 2022, 2023, 2024, 2025]:
-                            if re.search(r'\b' + str(episode_num) + r'(?:p|K|HD|WEB|BLURAY|X264|X265|HEVC|Multi|Dual)\b', filename, re.IGNORECASE) or \
+                            if re.search(r'\b' + str(episode_num) + r'(?:p|K|HD|WEB|BLURAY|X264|X265|HEVC|MULTI|DUAL)\b', filename, re.IGNORECASE) or \
                                 re.search(r'\b(?:19|20)\d{2}\b', filename, re.IGNORECASE) and len(str(episode_num)) == 4:
                                 print(f"DEBUG: Skipping {episode_num} as it is a common quality/year number.")
                                 continue
@@ -515,8 +515,8 @@ def extract_season_number(filename):
         r'HDR',
         r'H\.264', r'H\.265',
         r'(?:19|20)\d{2}',
-        r'Multi(?:audio)?',
-        r'Dual(?:audio)?',
+        r'MULTI(?:audio)?',
+        r'DUAL(?:audio)?',
     ]
     quality_pattern_for_exclusion = r'(?:' + '|'.join([f'(?:[\s._-]*{ind})' for ind in quality_and_year_indicators]) + r')'
 
