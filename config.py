@@ -23,7 +23,7 @@ class Config(object):
  
     # other configs
     ADMIN_URL = "https://t.me/EternalsHelplineBot"
-    DUMP_CHANNEL = os.environ.get("DUMP_CHANNEL", "-1002257657458")
+    DUMP_CHANNEL = -1002734211536
     DUMP = True
     BOT_UPTIME  = time.time()
     START_PIC   = os.environ.get("START_PIC", "https://i.ibb.co/kgSv5sKP/3c10c3a8fc8d.jpg")
