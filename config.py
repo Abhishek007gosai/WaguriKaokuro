@@ -22,7 +22,7 @@ class Config(object):
     DB_URL  = os.environ.get("DB_URL", "")
  
     # other configs
-    ADMIN_URL = "https://t.me/EternalsHelplineBot"
+    ADMIN_URL = "https://t.me/Honkai_Bots"
     DUMP_CHANNEL = -1002734211536
     DUMP = False
     BOT_UPTIME  = time.time()
@@ -31,7 +31,7 @@ class Config(object):
     OWNER_ID = int(os.environ.get("OWNER_ID", "7654385403"))
     SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1002380726940"))
     LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002456565415"))
-    FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/8iu8dv.jpg")
+    FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
     BOT_USERNAME = os.environ.get("BOT_USERNAME", "ToukaRenameBot")
     LEADERBOARD_DELETE_TIMER = 30
     # wes response configuration     
@@ -47,16 +47,14 @@ class Config(object):
 ➲ ᴇᴘɪꜱᴏᴅᴇ - ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ᴇᴘɪꜱᴏᴅᴇ ɴᴜᴍʙᴇʀ
 ➲ ǫᴜᴀʟɪᴛʏ - ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ǫᴜᴀʟɪᴛʏ
 
-<b>‣ ꜰᴏʀ ᴇx:- </b>`/autorename [S{season} E{episode}] Your Anime Name [Quality] [Audio] @AnimeNexusNetwork`
+<b>‣ ꜰᴏʀ ᴇx:- </b>`/autorename [S{season} E{episode}] Your Anime Name [Quality] [Audio] @Honkai_Bots`
 
 Don't use .mkv/.mp4, Bot Will Detect The Format Automatically
 
 <b>‣ /Autorename: ʀᴇɴᴀᴍᴇ ʏᴏᴜʀ ᴍᴇᴅɪᴀ ꜰɪʟᴇꜱ ʙʏ ɪɴᴄʟᴜᴅɪɴɢ 'ᴇᴘɪꜱᴏᴅᴇ' ᴀɴᴅ 'ǫᴜᴀʟɪᴛʏ' ᴠᴀʀɪᴀʙʟᴇꜱ ɪɴ ʏᴏᴜʀ ᴛᴇxᴛ, ᴛᴏ ᴇxᴛʀᴀᴄᴛ ᴇᴘɪꜱᴏᴅᴇ ᴀɴᴅ ǫᴜᴀʟɪᴛʏ ᴘʀᴇꜱᴇɴᴛ ɪɴ ᴛʜᴇ ᴏʀɪɢɪɴᴀʟ ꜰɪʟᴇɴᴀᴍᴇ.</b>"""
     
     ABOUT_TXT = f"""<b><blockquote>❍sᴜᴘʀᴇᴀᴍ : <a href='https://t.me/AnimeNexusNetwork'>ɴᴇᴛᴡᴏʀᴋ</a>
-❍ᴀɴɪᴍᴇ : <a href='https://t.me/Anime_Eternals'>ᴀɴɪᴍᴇ ᴇᴛᴇʀɴᴀʟꜱ</a>
-❍ᴏɴɢᴏɪɴɢ ᴀɴɪᴍᴇ: <a href='https://t.me/Anime_Ongoing_Airing'>ᴏɴɢᴏɪɴɢ ᴀɪʀɪɴɢꜱ</a>
-❍ʜᴇʟᴘʟɪɴᴇ : <a href='https://t.me/EternalsHelplineBot'>ʜᴇʟᴘʟɪɴᴇ</a>
+❍ᴍᴏʀᴇ ʙᴏᴛs: <a href='https://t.me/Honkai_Bots'>ʜᴏɴᴋᴀɪ</a>
 
 ➻ ᴄʟɪᴄᴋ ᴏɴ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ɢɪᴠᴇɴ ʙᴇʟᴏᴡ ғᴏʀ ɢᴇᴛᴛɪɴɢ ʙᴀsɪᴄ ʜᴇʟᴩ ᴀɴᴅ ɪɴғᴏ ᴀʙᴏᴜᴛ ᴍᴇ.</blockquote></b>"""
 
