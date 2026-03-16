@@ -62,7 +62,7 @@ async def cb_handler(client, query: CallbackQuery):
                 disable_web_page_preview=True,
                 reply_markup=InlineKeyboardMarkup([
                     [InlineKeyboardButton("• ᴍʏ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs •", callback_data='help')],
-                    [InlineKeyboardButton('• ᴜᴘᴅᴀᴛᴇ', url='https://t.me/Honkai_Bots'), InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ •', url='https://t.me/Anime_Chatting_Groups')],
+                    [InlineKeyboardButton('• ᴜᴘᴅᴀᴛᴇ', url='https://t.me/AnimeNexusNetwork/160'), InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ •', url='https://t.me/EternalsHelplineBot')],
                     [InlineKeyboardButton('• ᴀʙᴏᴜᴛ', callback_data='about'), InlineKeyboardButton('ᴀɴɪᴍᴇ ɴᴇᴡs •', url='https://t.me/Anime_News_Arena')]
                 ])
             )
