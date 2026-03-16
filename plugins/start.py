@@ -446,8 +446,8 @@ async def show_start_message(client, message: Message):
             InlineKeyboardButton("• ᴍʏ ᴀʟʟ ᴄᴏᴍᴍᴀɴds •", callback_data='help')
         ],
         [
-            InlineKeyboardButton('• ᴜᴘᴅᴀᴛᴇ', url='https://t.me/Honkai_Bots'),
-            InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ •', url='https://t.me/Anime_Chatting_Groups')
+            InlineKeyboardButton('• ᴜᴘᴅᴀᴛᴇ', url='https://t.me/AnimeNexusNetwork/160'),
+            InlineKeyboardButton('sᴜᴘᴘᴏʀᴛ •', url='https://t.me/EternalsHelplineBot')
         ],
         [
             InlineKeyboardButton('• ᴀʙᴏᴜᴛ', callback_data='about'),
