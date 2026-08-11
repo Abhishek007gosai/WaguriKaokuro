@@ -12,8 +12,8 @@ id_pattern = re.compile(r'^.\d+$')
 # --
 class Config(object):
     # Pyrogram client config
-    API_ID = int(os.environ.get("API_ID", "23537462"))
-    API_HASH = os.environ.get("API_HASH", "oc9599a5aa61ee8ca4f5e778d20c61f24")
+    API_ID = int(os.environ.get("API_ID", ""))
+    API_HASH = os.environ.get("API_HASH", "")
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
     BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
     PORT = int(os.environ.get("PORT", "8980"))
