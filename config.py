@@ -24,16 +24,16 @@ class Config(object):
 
     # Other configs
     ADMIN_URL = os.environ.get("ADMIN_URL", "https://t.me/EternalsHelplineBot")
-    DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "-1002734211536"))
+    DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "-1002456565415"))
     DUMP = os.environ.get("DUMP", "False").lower() in ["true", "1", "yes"]
     BOT_UPTIME = time.time()
     START_PIC = os.environ.get("START_PIC", "https://i.ibb.co/kgSv5sKP/3c10c3a8fc8d.jpg")
     LEADERBOARD_PIC = os.environ.get("LEADERBOARD_PIC", "https://files.catbox.moe/8iu8dv.jpg")
     FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
 
-    OWNER_ID = int(os.environ.get("OWNER_ID", "0"))
+    OWNER_ID = int(os.environ.get("OWNER_ID", ""))
     SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1002380726940"))
-    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002456565415"))
+    LOG_CHANNEL = -1002456565415
 
     LEADERBOARD_DELETE_TIMER = int(os.environ.get("LEADERBOARD_DELETE_TIMER", "30"))
 
