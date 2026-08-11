@@ -14,12 +14,12 @@ class Config(object):
     # pyro client config
     API_ID    = os.environ.get("API_ID", "23537462")
     API_HASH  = os.environ.get("API_HASH", "c9599a5aa61ee8ca4f5e778d20c61f24")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "8298130083:AAHDPeCdNlnIbr8x_HkReSf_zalfv07aUEU")
     PORT = os.environ.get("PORT", "8980")
 
     # database config
     DB_NAME = os.environ.get("DB_NAME", "cluster0")     
-    DB_URL  = os.environ.get("DB_URL", "")
+    DB_URL  = os.environ.get("DB_URL", "mongodb+srv://WaguriKaokuro:RtOEpJHhr1ldXp3h@cluster0.gvhnyzp.mongodb.net/?appName=Cluster0")
  
     # other configs
     ADMIN_URL = "https://t.me/EternalsHelplineBot"
@@ -32,7 +32,7 @@ class Config(object):
     SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1002380726940"))
     LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002456565415"))
     FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
-    BOT_USERNAME = os.environ.get("BOT_USERNAME", "")
+    BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
     LEADERBOARD_DELETE_TIMER = 30
     # wes response configuration     
     WEBHOOK = bool(os.environ.get("WEBHOOK", "True"))
