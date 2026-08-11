@@ -1,7 +1,7 @@
 pyrogram==2.0.106
 pyromod==1.5
 TgCrypto
-motor==3.3.2
+motor==3.7.1
 dnspython
 hachoir
 Pillow
@@ -9,5 +9,5 @@ aiohttp
 pytz
 humanize
 ffmpeg-python
-pymongo
+pymongo==4.10.1
 requests
