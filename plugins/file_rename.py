@@ -44,7 +44,6 @@ def _get_semaphore():
         _semaphore = asyncio.Semaphore(3)
     return _semaphore
 chat_data_cache = {}
-ADMIN_URL = Config.ADMIN_URL
 FSUB_PIC = Config.FSUB_PIC
 BOT_USERNAME = Config.BOT_USERNAME
 OWNER_ID = Config.OWNER_ID
@@ -64,7 +63,7 @@ def check_ban(func):
         user = await rexbots.col.find_one({"_id": user_id})
         if user and user.get("ban_status", {}).get("is_banned", False):
             keyboard = InlineKeyboardMarkup(
-                [[InlineKeyboardButton("Cᴏɴᴛᴀᴄᴛ ʜᴇʀᴇ...!!", url=ADMIN_URL)]]
+                [[InlineKeyboardButton("Cᴏɴᴛᴀᴄᴛ ʜᴇʀᴇ...!!", url="https://t.me/")]]
             )
             return await message.reply_text(
                 "Wᴛғ ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ ғʀᴏᴍ ᴜsɪɴɢ ᴍᴇ ʙʏ ᴏᴜʀ ᴀᴅᴍɪɴ/ᴏᴡɴᴇʀ . Iғ ʏᴏᴜ ᴛʜɪɴᴋs ɪᴛ's ᴍɪsᴛᴀᴋᴇ ᴄʟɪᴄᴋ ᴏɴ ᴄᴏɴᴛᴀᴄᴛ ʜᴇʀᴇ...!!",
@@ -927,57 +926,6 @@ async def auto_rename_files(client, message):
                     common_upload_params['duration'] = int(duration)
                 sent_message = await client.send_audio(audio=file_path, **common_upload_params)
 
-            if Config.DUMP:
-                try:
-                    ist = pytz.timezone('Asia/Kolkata')
-                    current_time = datetime.now(ist).strftime("%Y-%m-%d %H:%M:%S IST")
-                    
-                    first_name = message.from_user.first_name
-                    full_name = first_name
-                    if message.from_user.last_name:
-                        full_name += f" {user.last_name}"
-                    username = f"@{message.from_user.username}" if message.from_user.username else "N/A"
-                    has_premium_accesss = await check_user_premium(user_id)
-                    premium_status = '🗸' if has_premium_accesss else '✘'
-                    
-                    dump_caption = (
-                        f"» Usᴇʀ Dᴇᴛᴀɪʟs «\n"
-                        f"ID: {user_id}\n"
-                        f"Nᴀᴍᴇ: {first_name}\n"
-                        f"Usᴇʀɴᴀᴍᴇ: {username}\n"
-                        f"Pʀᴇᴍɪᴜᴍ: {premium_status}\n"
-                        f"Tɪᴍᴇ: {current_time}\n"
-                        f"Oʀɪɢɪɴᴀʟ Fɪʟᴇɴᴀᴍᴇ: {file_name}\n"
-                        f"Rᴇɴᴀᴍᴇᴅ Fɪʟᴇɴᴀᴍᴇ: {new_file_name}"
-                    )
-                    
-                    dump_channel = Config.DUMP_CHANNEL
-                    if not dump_channel:
-                        pass
-                    elif media_type == "document" and sent_message.document:
-                        await client.send_document(
-                            chat_id=dump_channel,
-                            document=sent_message.document.file_id,
-                            thumb=ph_path,
-                            caption=dump_caption
-                        )
-                    elif media_type == "video" and sent_message.video:
-                        await client.send_video(
-                            chat_id=dump_channel,
-                            video=sent_message.video.file_id,
-                            thumb=ph_path,
-                            caption=dump_caption
-                        )
-                    elif media_type == "audio" and sent_message.audio:
-                        await client.send_audio(
-                            chat_id=dump_channel,
-                            audio=sent_message.audio.file_id,
-                            thumb=ph_path,
-                            caption=dump_caption
-                        )
-                except Exception as e:
-                    logger.error(f"Error sending to dump channel: {e}")
-                    await msg.edit(f"❌ Eʀʀᴏʀ: {str(e)}")
                     
             await msg.delete()
 

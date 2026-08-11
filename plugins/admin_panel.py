@@ -29,7 +29,6 @@ logger.setLevel(logging.INFO)
 # 𝐀𝐍𝐘 𝐈𝐒𝐒𝐔𝐄𝐒 𝐎𝐑 𝐀𝐃𝐃𝐈𝐍𝐆 𝐌𝐎𝐑𝐄 𝐓𝐇𝐈𝐍𝐆𝐬 𝐂𝐀𝐍 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐌𝐄
 # ----------------------------------------
 OWNER_ID = Config.OWNER_ID
-ADMIN_URL = Config.ADMIN_URL
 # ----------------------------------------
 # 𝐌𝐀𝐃𝐄 𝐁𝐘 𝐀𝐁𝐇𝐈
 # 𝐓𝐆 𝐈𝐃 : @𝐂𝐋𝐔𝐓𝐂𝐇𝟎𝟎𝟖
@@ -50,7 +49,7 @@ def check_ban(func):
         user = await rexbots.col.find_one({"_id": user_id})
         if user and user.get("ban_status", {}).get("is_banned", False):
             keyboard = InlineKeyboardMarkup(
-                [[InlineKeyboardButton("Cᴏɴᴛᴀᴄᴛ ʜᴇʀᴇ...!!", url=ADMIN_URL)]]
+                [[InlineKeyboardButton("Cᴏɴᴛᴀᴄᴛ ʜᴇʀᴇ...!!", url="https://t.me/")]]
             )
             return await message.reply_text(
                 "**Wᴛғ ʏᴏᴜ ᴀʀᴇ ʙᴀɴɴᴇᴅ ғʀᴏᴍ ᴜsɪɴɢ ᴍᴇ ʙʏ ᴏᴜʀ ᴀᴅᴍɪɴ/ᴏᴡɴᴇʀ . Iғ ʏᴏᴜ ᴛʜɪɴᴋs ɪᴛ's ᴍɪsᴛᴀᴋᴇ ᴄʟɪᴄᴋ ᴏɴ ᴄᴏɴᴛᴀᴄᴛ ʜᴇʀᴇ...!!**",
@@ -277,7 +276,7 @@ async def ban_user(bot, message):
                 text=f"<b>🚫 Yᴏᴜ ʜᴀᴠᴇ ʙᴇᴇɴ ʙᴀɴɴᴇᴅ</b>\n\n"
                      f"<blockquote><b>Rᴇᴀsᴏɴ: {reason}\n"
                      f"Dᴀᴛᴇ: {date.today().strftime('%d-%m-%Y')}</b></blockquote>",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Cᴏɴᴛᴀᴄᴛ Aᴅᴍɪɴ", url=ADMIN_URL)]])
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("Cᴏɴᴛᴀᴄᴛ Aᴅᴍɪɴ", url="https://t.me/")]])
             )
         except:
             pass
@@ -815,7 +814,7 @@ async def leaderboard_handler(bot: Client, message: Message):
                 leaderboard.append(f"\n<b>Yᴏᴜʀ Rᴀɴᴋ:</b> {user_rank} ᴡɪᴛʜ {user_count} ʀᴇɴᴀᴍᴇs")
 
             leaderboard.append(f"\nLᴀsᴛ ᴜᴘᴅᴀᴛᴇᴅ: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-            leaderboard.append(f"\n<i>**Tʜɪs ᴍᴇssᴀɢᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ɪɴ {Config.LEADERBOARD_DELETE_TIMER} sᴇᴄᴏɴᴅs**</i>")
+            leaderboard.append(f"\n<i>**Tʜɪs ᴍᴇssᴀɢᴇ ᴡɪʟʟ ᴀᴜᴛᴏ-ᴅᴇʟᴇᴛᴇ ɪɴ {30} sᴇᴄᴏɴᴅs**</i>")
 
             return "\n".join(leaderboard)
 
@@ -833,7 +832,7 @@ async def leaderboard_handler(bot: Client, message: Message):
         )
 
         async def delete_messages():
-            await asyncio.sleep(Config.LEADERBOARD_DELETE_TIMER)
+            await asyncio.sleep(30)
             try:
                 await sent_msg.delete()
             except Exception as e:
@@ -850,9 +849,9 @@ async def leaderboard_handler(bot: Client, message: Message):
         error_msg = await message.reply_text(
             "<b>Eʀʀᴏʀ ɢᴇɴᴇʀᴀᴛɪɴɢ ʟᴇᴀᴅᴇʀʙᴏᴀʀᴅ!</b>\n"
             f"<code>{str(e)}</code>\n\n"
-            f"**Tʜɪs ᴍᴇssᴀɢᴇ ᴡɪʟʟ sᴇʟғ-ᴅᴇsᴛʀᴜᴄᴛ ɪɴ {Config.LEADERBOARD_DELETE_TIMER} sᴇᴄᴏɴᴅs.**"
+            f"**Tʜɪs ᴍᴇssᴀɢᴇ ᴡɪʟʟ sᴇʟғ-ᴅᴇsᴛʀᴜᴄᴛ ɪɴ {30} sᴇᴄᴏɴᴅs.**"
         )
-        await asyncio.sleep(Config.LEADERBOARD_DELETE_TIMER)
+        await asyncio.sleep(30)
         try:
             await error_msg.delete()
         except Exception as e:

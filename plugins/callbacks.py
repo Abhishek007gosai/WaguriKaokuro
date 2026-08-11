@@ -46,7 +46,7 @@ async def cb_handler(client, query: CallbackQuery):
             return await query.message.edit_text(
                 "🚫 You are banned from using this bot.\n\nIf you think this is a mistake, contact the admin.",
                 reply_markup=InlineKeyboardMarkup(
-                    [[InlineKeyboardButton("📩 Contact Admin", url=Config.ADMIN_URL)]]
+                    [[InlineKeyboardButton("📩 Contact Admin", url="https://t.me/")]]
                 )
             )
 
