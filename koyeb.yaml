@@ -45,13 +45,5 @@ service:
       value: "True"
     - name: LOG_CHANNEL
       value: ""
-    - name: SUPPORT_CHAT
-      value: ""
-    - name: DUMP_CHANNEL
-      value: ""
-    - name: DUMP
-      value: "False"
     - name: START_PIC
-      value: ""
-    - name: ADMIN_URL
       value: ""

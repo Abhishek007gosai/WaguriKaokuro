@@ -46,11 +46,7 @@ This repo is ready for [Koyeb](https://www.koyeb.com/).
 | `WEBHOOK` | No | Keep `True` (default) so Koyeb health checks pass |
 | `PORT` | No | Set automatically by Koyeb |
 | `LOG_CHANNEL` | No | Channel ID for restart logs (bot must be admin) |
-| `SUPPORT_CHAT` | No | Support group/channel ID |
-| `DUMP_CHANNEL` | No | Channel to dump renamed files (requires `DUMP=True`) |
-| `DUMP` | No | `True` / `False` (default `False`) |
 | `START_PIC` | No | Start command image URL |
-| `ADMIN_URL` | No | Contact admin URL |
 
 ### 2. Deploy steps
 

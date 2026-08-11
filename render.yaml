@@ -22,11 +22,5 @@ services:
         value: "True"
       - key: LOG_CHANNEL
         sync: false
-      - key: SUPPORT_CHAT
-        sync: false
-      - key: DUMP_CHANNEL
-        sync: false
       - key: START_PIC
-        sync: false
-      - key: ADMIN_URL
         sync: false

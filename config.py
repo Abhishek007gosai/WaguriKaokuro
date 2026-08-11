@@ -21,24 +21,19 @@ def _env_bool(name: str, default: bool = False) -> bool:
 
 class Config(object):
     # Telegram
-    API_ID = _env_int("")
+    API_ID = _env_int("API_ID")
     API_HASH = os.environ.get("API_HASH", "").strip()
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
     BOT_USERNAME = os.environ.get("BOT_USERNAME", "")
     PORT = _env_int("PORT", 8080)
 
     # Database
-    DB_NAME = os.environ.get("DB_NAME", "")
+    DB_NAME = os.environ.get("DB_NAME", "WAGURI")
     DB_URL = os.environ.get("DB_URL", "").strip()
 
     # Optional channels / flags
-    ADMIN_URL = os.environ.get("ADMIN_URL", "h")
-    DUMP_CHANNEL = _env_int("")
-    DUMP = _env_bool("DUMP", False)
-    OWNER_ID = _env_int("")
-    SUPPORT_CHAT = _env_int("")
-    LOG_CHANNEL = _env_int("")
-    LEADERBOARD_DELETE_TIMER = _env_int("LEADERBOARD_DELETE_TIMER", 30)
+    OWNER_ID = _env_int("OWNER_ID")
+    LOG_CHANNEL = _env_int("LOG_CHANNEL")
     WEBHOOK = _env_bool("WEBHOOK", True)
 
     # Media / UI
