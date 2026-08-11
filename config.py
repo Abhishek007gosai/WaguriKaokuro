@@ -11,32 +11,35 @@ id_pattern = re.compile(r'^.\d+$')
 # 𝐀𝐍𝐘 𝐈𝐒𝐒𝐔𝐄𝐒 𝐎𝐑 𝐀𝐃𝐃𝐈𝐍𝐆 𝐌𝐎𝐑𝐄 𝐓𝐇𝐈𝐍𝐆𝐬 𝐂𝐀𝐍 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐌𝐄
 # --
 class Config(object):
-    # pyro client config
-    API_ID = 23537462
-    API_HASH  = "oc9599a5aa61ee8ca4f5e778d20c61f24"
-    BOT_TOKEN = ""
-    PORT = os.environ.get("PORT", "8980")
+    # Pyrogram client config
+    API_ID = int(os.environ.get("API_ID", "23537462"))
+    API_HASH = os.environ.get("API_HASH", "oc9599a5aa61ee8ca4f5e778d20c61f24")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+    BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
+    PORT = int(os.environ.get("PORT", "8980"))
 
-    # database config
-    DB_NAME = "cluster0"
-    DB_URL  = ""
- 
-    # other configs
-    ADMIN_URL = "https://t.me/EternalsHelplineBot"
-    DUMP_CHANNEL = -1002734211536
-    DUMP = False
-    BOT_UPTIME  = time.time()
-    START_PIC   = os.environ.get("START_PIC", "https://i.ibb.co/kgSv5sKP/3c10c3a8fc8d.jpg")
+    # Database config
+    DB_NAME = os.environ.get("DB_NAME", "cluster0")
+    DB_URL = os.environ.get("DB_URL", "")
+
+    # Other configs
+    ADMIN_URL = os.environ.get("ADMIN_URL", "https://t.me/EternalsHelplineBot")
+    DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", "-1002734211536"))
+    DUMP = os.environ.get("DUMP", "False").lower() in ["true", "1", "yes"]
+    BOT_UPTIME = time.time()
+    START_PIC = os.environ.get("START_PIC", "https://i.ibb.co/kgSv5sKP/3c10c3a8fc8d.jpg")
     LEADERBOARD_PIC = os.environ.get("LEADERBOARD_PIC", "https://files.catbox.moe/8iu8dv.jpg")
-    OWNER_ID = int(os.environ.get("OWNER_ID", ""))
+    FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
+
+    OWNER_ID = int(os.environ.get("OWNER_ID", "0"))
     SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1002380726940"))
     LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002456565415"))
-    FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
-    BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
-    LEADERBOARD_DELETE_TIMER = 30
-    # wes response configuration     
-    WEBHOOK = bool(os.environ.get("WEBHOOK", "True"))
-    
+
+    LEADERBOARD_DELETE_TIMER = int(os.environ.get("LEADERBOARD_DELETE_TIMER", "30"))
+
+    # Web response configuration
+    WEBHOOK = os.environ.get("WEBHOOK", "True").lower() in ["true", "1", "yes"]
+
     #========================================================================================   
     START_TXT = """<b><blockquote>ʜᴇʏ! {mention} ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴏᴜʀ ᴄᴏᴍᴍᴜɴɪᴛʏ ɪғ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ sᴜᴘᴘᴏʀᴛ ᴏᴜʀ ᴄᴏᴍᴍᴜɴɪᴛʏ ʏᴏᴜ ᴄᴀɴ ᴅᴏ sᴏ ʙʏ sᴜʙsᴄʀɪʙɪɴɢ ᴛᴏ ᴏᴜʀ ᴄʜᴀɴɴᴇʟ</blockquote>
 
