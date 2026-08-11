@@ -16,32 +16,49 @@ from helper.utils import send_log
 # --
 class Seishiro:
     def __init__(self, uri, database_name):
+        # IMPORTANT: this class is imported at module level by nearly every
+        # plugin (`from helper.database import rexbots`), and Pyrogram loads
+        # all plugins as part of Client.start() -- BEFORE the health-check
+        # web server binds. That means if this constructor raises, the
+        # entire process dies before Koyeb's health check ever has a chance
+        # to pass, guaranteeing an infinite crash/restart loop (which in turn
+        # burns through Telegram's auth rate limit -> FloodWait bans).
+        #
+        # So: a bad/unreachable DB_URL must NEVER crash startup. We validate
+        # and log loudly, but always leave self._client/self.database/etc.
+        # populated with a (lazily-connecting) motor client so imports keep
+        # working. Individual DB calls will simply fail later at the point
+        # of use -- which the plugin code already wraps in try/except in
+        # most places -- instead of taking the whole bot down.
+        self.available = False
         if not uri:
-            raise ValueError(
-                "DB_URL is not set (or empty). Set the DB_URL environment "
-                "variable to your MongoDB Atlas connection string, e.g. "
-                "mongodb+srv://<user>:<password>@<cluster>.mongodb.net"
-            )
-        try:
-            # NOTE: motor's server_info() is a coroutine and cannot be
-            # awaited here since __init__ is not async. Using a short-lived
-            # synchronous pymongo client instead lets us actually verify the
-            # connection (and DNS resolution of the SRV record) at startup,
-            # failing fast with a clear error instead of silently succeeding
-            # and only breaking later on the first real query.
-            import pymongo
-            sync_client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=8000)
-            sync_client.admin.command("ping")
-            sync_client.close()
-            self._client = motor.motor_asyncio.AsyncIOMotorClient(uri)
-            logging.info("Successfully connected to MongoDB")
-        except Exception as e:
             logging.error(
-                f"Failed to connect to MongoDB using the configured DB_URL: {e}\n"
-                "Double-check DB_URL in your environment variables against the "
-                "current connection string shown in MongoDB Atlas (Connect > Drivers)."
+                "DB_URL is not set (or empty). Database-backed features "
+                "(user settings, thumbnails, verification, etc.) will not "
+                "work until you set the DB_URL environment variable to your "
+                "MongoDB Atlas connection string. Continuing startup anyway "
+                "so the bot itself can still come online."
             )
-            raise e
+        else:
+            try:
+                import pymongo
+                sync_client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=8000)
+                sync_client.admin.command("ping")
+                sync_client.close()
+                self.available = True
+                logging.info("Successfully connected to MongoDB")
+            except Exception as e:
+                logging.error(
+                    f"Failed to connect to MongoDB using the configured DB_URL: {e}\n"
+                    "Double-check DB_URL in your environment variables against the "
+                    "current connection string shown in MongoDB Atlas (Connect > Drivers). "
+                    "Continuing startup anyway -- database-backed features will fail "
+                    "gracefully until this is fixed, instead of crashing the whole bot."
+                )
+        # Always create the (lazy, non-blocking) async client so every
+        # attribute below exists regardless of whether the ping above
+        # succeeded -- this is what lets plugin imports succeed either way.
+        self._client = motor.motor_asyncio.AsyncIOMotorClient(uri or "mongodb://localhost:27017")
         self.database = self._client[database_name]
         self.channel_data = self.database['channels']
         self.admins_data = self.database['admins']
