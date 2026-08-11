@@ -30,15 +30,15 @@ def _require_int_env(name, default=None):
 
 class Config(object):
     # Pyrogram client config
-    API_ID = _require_int_env("API_ID")
-    API_HASH = os.environ.get("API_HASH", "")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
+    API_ID = 29245477
+    API_HASH = os.environ.get("API_HASH", "0abc83883262245c90ca337b7a0375c4")
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "8298130083:AAES0zZ8Xpyeu_eWAfp-utYVqi1Gchv4G-U")
     BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
     PORT = int(os.environ.get("PORT", "8980"))
 
     # Database config
     DB_NAME = os.environ.get("DB_NAME", "cluster0")
-    DB_URL = os.environ.get("DB_URL", "")
+    DB_URL = os.environ.get("DB_URL", "mongodb+srv://WaguriKaokuro:RtOEpJHhr1ldXp3h@cluster0.gvhnyzp.mongodb.net/?appName=Cluster0")
 
     # Other configs
     ADMIN_URL = os.environ.get("ADMIN_URL", "https://t.me/EternalsHelplineBot")
