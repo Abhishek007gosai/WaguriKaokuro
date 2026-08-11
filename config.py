@@ -32,13 +32,13 @@ class Config(object):
     # Pyrogram client config
     API_ID = 29245477
     API_HASH = "0abc83883262245c90ca337b7a0375c4"
-    BOT_TOKEN = "8298130083:AAES0zZ8Xpyeu_eWAfp-utYVqi1Gchv4G-U"
+    BOT_TOKEN = ""
     BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
     PORT = int(os.environ.get("PORT", "8980"))
 
     # Database config
     DB_NAME = os.environ.get("DB_NAME", "cluster0")
-    DB_URL = "mongodb+srv://WaguriKaokuro:RtOEpJHhr1ldXp3h@cluster0.gvhnyzp.mongodb.net/?appName=Cluster0"
+    DB_URL = ""
 
     # Other configs
     ADMIN_URL = os.environ.get("ADMIN_URL", "https://t.me/EternalsHelplineBot")
