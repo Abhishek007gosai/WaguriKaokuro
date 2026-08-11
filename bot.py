@@ -59,6 +59,8 @@ class Bot(Client):
         uptime_seconds = int(time.time() - self.start_time)
         uptime_string = str(timedelta(seconds=uptime_seconds))
         for chat_id in [Config.LOG_CHANNEL, Config.SUPPORT_CHAT]:
+            if not chat_id:
+                continue
             try:
                 curr = datetime.now(timezone("Asia/Kolkata"))
                 date = curr.strftime('%d %B, %Y')
@@ -88,14 +90,15 @@ class Bot(Client):
 # --
 async def _run_health_server():
     """Bind the health-check HTTP port immediately, independent of Telegram/
-    Mongo. Koyeb polls this port to decide whether to keep restarting the
-    instance -- if it never opens (e.g. because Pyrogram crashed during
-    plugin loading before reaching this point), Koyeb restart-loops the
-    container, and every restart re-attempts Telegram bot auth, which is
-    exactly what caused the FloodWait bans seen in earlier deploys. Starting
-    this first, before touching Telegram at all, decouples that failure mode."""
-    if not Config.WEBHOOK:
-        return None
+    Mongo. Koyeb (and Render/Railway) poll this port to decide whether the
+    instance is healthy. If it never opens (e.g. because Pyrogram crashed
+    during plugin loading before reaching this point), the platform
+    restart-loops the container, and every restart re-attempts Telegram bot
+    auth -- which is exactly what causes FloodWait bans. Starting this first,
+    before touching Telegram at all, decouples that failure mode.
+
+    Always binds on $PORT regardless of WEBHOOK so the service stays
+    deployable on platforms that require an open HTTP port."""
     app_runner = web.AppRunner(await web_server())
     await app_runner.setup()
     await web.TCPSite(app_runner, "0.0.0.0", PORT).start()

@@ -10,56 +10,46 @@ id_pattern = re.compile(r'^.\d+$')
 # 𝐓𝐆 𝐈𝐃 : @𝐂𝐋𝐔𝐓𝐂𝐇𝟎𝟎𝟖
 # 𝐀𝐍𝐘 𝐈𝐒𝐒𝐔𝐄𝐒 𝐎𝐑 𝐀𝐃𝐃𝐈𝐍𝐆 𝐌𝐎𝐑𝐄 𝐓𝐇𝐈𝐍𝐆𝐬 𝐂𝐀𝐍 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐌𝐄
 # --
-def _require_int_env(name, default=None):
-    """Read an int env var with a clear error instead of a bare ValueError
-    when it's missing/blank (previously int(os.environ.get(name, "")) would
-    crash the whole app at import time with an unhelpful traceback)."""
-    raw = os.environ.get(name, "" if default is None else str(default))
-    if raw == "":
-        raise RuntimeError(
-            f"Required environment variable '{name}' is not set. "
-            f"Set it in your deployment platform's environment variables."
-        )
-    try:
-        return int(raw)
-    except ValueError:
-        raise RuntimeError(
-            f"Environment variable '{name}' must be an integer, got: {raw!r}"
-        )
-
-
 class Config(object):
-    # Pyrogram client config
-    API_ID = 29245477
-    API_HASH = "0abc83883262245c90ca337b7a0375c4"
-    BOT_TOKEN = ""
-    BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
-    PORT = int(os.environ.get("PORT", "8980"))
+    # Pyrogram client config — all secrets MUST come from env vars on Koyeb/Render/etc.
+    API_ID = int(os.environ.get("API_ID", "0"))
+    API_HASH = os.environ.get("API_HASH", "").strip()
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
+    BOT_USERNAME = os.environ.get("BOT_USERNAME", "")
+    PORT = int(os.environ.get("PORT", "8080"))
+
+    if not API_HASH:
+        raise RuntimeError("Required environment variable 'API_HASH' is not set.")
+    if not BOT_TOKEN:
+        raise RuntimeError("Required environment variable 'BOT_TOKEN' is not set.")
 
     # Database config
-    DB_NAME = os.environ.get("DB_NAME", "cluster0")
-    DB_URL = ""
+    DB_NAME = os.environ.get("DB_NAME", "WAGURI")
+    DB_URL = os.environ.get("DB_URL", "").strip()
 
     # Other configs
-    ADMIN_URL = os.environ.get("ADMIN_URL", "https://t.me/EternalsHelplineBot")
-    DUMP_CHANNEL = int(os.environ.get("DUMP_CHANNEL", ""))
+    ADMIN_URL = os.environ.get("ADMIN_URL", "https://t.me/")
+    # Optional; empty string means "disabled" instead of crashing import
+    _dump_raw = os.environ.get("DUMP_CHANNEL", "").strip()
+    DUMP_CHANNEL = int(_dump_raw) if _dump_raw else 0
     DUMP = os.environ.get("DUMP", "False").lower() in ["true", "1", "yes"]
     BOT_UPTIME = time.time()
     START_PIC = os.environ.get("START_PIC", "https://i.ibb.co/kgSv5sKP/3c10c3a8fc8d.jpg")
     LEADERBOARD_PIC = os.environ.get("LEADERBOARD_PIC", "https://files.catbox.moe/8iu8dv.jpg")
     FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
 
-    OWNER_ID = 8771195193
-    SUPPORT_CHAT = "-1004309882708"
-    # Previously hardcoded with no way to override -> CHANNEL_INVALID errors
-    # whenever the bot wasn't a member of that specific hardcoded channel.
-    # Now configurable, with the old value kept as the default.
-    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002456565415"))
+    OWNER_ID = int(os.environ.get("OWNER_ID", "0"))
+    # Support / log chats — optional; set to 0 to disable startup notifications
+    _support_raw = os.environ.get("SUPPORT_CHAT", "").strip()
+    SUPPORT_CHAT = int(_support_raw) if _support_raw else 0
+    _log_raw = os.environ.get("LOG_CHANNEL", "").strip()
+    LOG_CHANNEL = int(_log_raw) if _log_raw else 0
 
     LEADERBOARD_DELETE_TIMER = int(os.environ.get("LEADERBOARD_DELETE_TIMER", "30"))
 
-    # Web response configuration
-    WEBHOOK = os.environ.get("WEBHOOK", "False").lower() in ["true", "1", "yes"]
+    # Web response configuration.
+    # Default True so Koyeb/Render health checks can reach the HTTP server on $PORT.
+    WEBHOOK = os.environ.get("WEBHOOK", "True").lower() in ["true", "1", "yes"]
 
     #========================================================================================   
     START_TXT = """<b><blockquote>ʜᴇʏ! {mention} ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴏᴜʀ ᴄᴏᴍᴍᴜɴɪᴛʏ ɪғ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ sᴜᴘᴘᴏʀᴛ ᴏᴜʀ ᴄᴏᴍᴍᴜɴɪᴛʏ ʏᴏᴜ ᴄᴀɴ ᴅᴏ sᴏ ʙʏ sᴜʙsᴄʀɪʙɪɴɢ ᴛᴏ ᴏᴜʀ ᴄʜᴀɴɴᴇʟ</blockquote>

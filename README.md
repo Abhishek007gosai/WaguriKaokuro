@@ -27,6 +27,55 @@
 
 ---
 
+---
+
+## Deploy on Koyeb
+
+This repo is ready for [Koyeb](https://www.koyeb.com/).
+
+### 1. Required environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `API_ID` | Yes | From https://my.telegram.org |
+| `API_HASH` | Yes | From https://my.telegram.org |
+| `BOT_TOKEN` | Yes | From @BotFather |
+| `OWNER_ID` | Yes | Your Telegram numeric user ID |
+| `DB_URL` | Yes | MongoDB Atlas connection string |
+| `DB_NAME` | No | Database name (default: `WAGURI`) |
+| `WEBHOOK` | No | Keep `True` (default) so Koyeb health checks pass |
+| `PORT` | No | Set automatically by Koyeb |
+| `LOG_CHANNEL` | No | Channel ID for restart logs (bot must be admin) |
+| `SUPPORT_CHAT` | No | Support group/channel ID |
+| `DUMP_CHANNEL` | No | Channel to dump renamed files (requires `DUMP=True`) |
+| `DUMP` | No | `True` / `False` (default `False`) |
+| `START_PIC` | No | Start command image URL |
+| `ADMIN_URL` | No | Contact admin URL |
+
+### 2. Deploy steps
+
+1. Push this repository to GitHub or GitLab.
+2. In Koyeb: **Create App → Deploy from Git repository**.
+3. Choose **Dockerfile** as the builder (Dockerfile is included).
+4. Add all **Required** env vars above in the Koyeb UI (mark secrets as sensitive).
+5. Instance type: Free / Nano is fine for light use.
+6. Deploy. Health endpoint is `GET /` on `$PORT`.
+
+The process starts a lightweight HTTP health server **before** connecting to Telegram, so a bad token/DB config will not cause an infinite restart + FloodWait loop.
+
+### 3. Local run
+
+```bash
+export API_ID=...
+export API_HASH=...
+export BOT_TOKEN=...
+export OWNER_ID=...
+export DB_URL=...
+python bot.py
+```
+
+
+
 <details>
   <summary><h2>🤖 Bot Commands (Click to Expand)</h2></summary>
   

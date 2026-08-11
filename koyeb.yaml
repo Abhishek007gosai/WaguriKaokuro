@@ -1,0 +1,57 @@
+# Koyeb service definition
+# Docs: https://www.koyeb.com/docs/build-and-deploy/build-from-git
+#
+# Deploy steps:
+# 1. Push this repo to GitHub/GitLab
+# 2. Create a new Koyeb App → Deploy from Git
+# 3. Select this repo, set Dockerfile as the build method (or leave auto)
+# 4. Add the environment variables listed below
+# 5. Set Instance type (e.g. free/nano) and region
+# 6. Deploy
+
+name: waguri-rename-bot
+service:
+  type: web
+  ports:
+    - port: 8080
+      protocol: http
+  routes:
+    - path: /
+  health_checks:
+    - grace_period: 30s
+      interval: 30s
+      restart_limit: 3
+      timeout: 5s
+      http:
+        path: /
+  env:
+    - name: PORT
+      value: "8080"
+    # Required secrets — set these in the Koyeb dashboard (do not commit real values)
+    - name: API_ID
+      value: ""
+    - name: API_HASH
+      value: ""
+    - name: BOT_TOKEN
+      value: ""
+    - name: OWNER_ID
+      value: ""
+    - name: DB_URL
+      value: ""
+    # Optional
+    - name: DB_NAME
+      value: "WAGURI"
+    - name: WEBHOOK
+      value: "True"
+    - name: LOG_CHANNEL
+      value: ""
+    - name: SUPPORT_CHAT
+      value: ""
+    - name: DUMP_CHANNEL
+      value: ""
+    - name: DUMP
+      value: "False"
+    - name: START_PIC
+      value: ""
+    - name: ADMIN_URL
+      value: ""
