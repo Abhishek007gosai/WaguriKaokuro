@@ -49,7 +49,7 @@ class Config(object):
     LEADERBOARD_PIC = os.environ.get("LEADERBOARD_PIC", "https://files.catbox.moe/8iu8dv.jpg")
     FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
 
-    OWNER_ID = _require_int_env("OWNER_ID")
+    OWNER_ID = _require_int_env("")
     SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1003705304493"))
     # Previously hardcoded with no way to override -> CHANNEL_INVALID errors
     # whenever the bot wasn't a member of that specific hardcoded channel.
