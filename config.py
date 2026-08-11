@@ -15,7 +15,7 @@ class Config(object):
     API_ID = int(os.environ.get("API_ID", "0"))
     API_HASH = os.environ.get("API_HASH", "").strip()
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
-    BOT_USERNAME = os.environ.get("BOT_USERNAME", "")
+    BOT_USERNAME = os.environ.get("BOT_USERNAME", "KaorukoWaguriXBot")
     PORT = int(os.environ.get("PORT", "8080"))
 
     if not API_HASH:
@@ -24,7 +24,7 @@ class Config(object):
         raise RuntimeError("Required environment variable 'BOT_TOKEN' is not set.")
 
     # Database config
-    DB_NAME = os.environ.get("DB_NAME", "WAGURI")
+    DB_NAME = os.environ.get("DB_NAME", "cluster0")
     DB_URL = os.environ.get("DB_URL", "").strip()
 
     # Other configs
@@ -38,11 +38,11 @@ class Config(object):
     LEADERBOARD_PIC = os.environ.get("LEADERBOARD_PIC", "https://files.catbox.moe/8iu8dv.jpg")
     FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
 
-    OWNER_ID = int(os.environ.get("OWNER_ID", "0"))
+    OWNER_ID = int(os.environ.get("OWNER_ID", ""))
     # Support / log chats — optional; set to 0 to disable startup notifications
-    _support_raw = os.environ.get("SUPPORT_CHAT", "").strip()
+    _support_raw = os.environ.get("SUPPORT_CHAT", "0").strip()
     SUPPORT_CHAT = int(_support_raw) if _support_raw else 0
-    _log_raw = os.environ.get("LOG_CHANNEL", "").strip()
+    _log_raw = os.environ.get("LOG_CHANNEL", "-1002456565415").strip()
     LOG_CHANNEL = int(_log_raw) if _log_raw else 0
 
     LEADERBOARD_DELETE_TIMER = int(os.environ.get("LEADERBOARD_DELETE_TIMER", "30"))
