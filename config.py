@@ -14,12 +14,12 @@ class Config(object):
     # pyro client config
     API_ID = 23537462
     API_HASH  = "oc9599a5aa61ee8ca4f5e778d20c61f24"
-    BOT_TOKEN = "8298130083:AAHDPeCdNlnIbr8x_HkReSf_zalfv07aUEU"
+    BOT_TOKEN = ""
     PORT = os.environ.get("PORT", "8980")
 
     # database config
     DB_NAME = "cluster0"
-    DB_URL  = "mongodb+srv://WaguriKaokuro:RtOEpJHhr1ldXp3h@cluster0.gvhnyzp.mongodb.net/?appName=Cluster0"
+    DB_URL  = ""
  
     # other configs
     ADMIN_URL = "https://t.me/EternalsHelplineBot"
@@ -28,7 +28,7 @@ class Config(object):
     BOT_UPTIME  = time.time()
     START_PIC   = os.environ.get("START_PIC", "https://i.ibb.co/kgSv5sKP/3c10c3a8fc8d.jpg")
     LEADERBOARD_PIC = os.environ.get("LEADERBOARD_PIC", "https://files.catbox.moe/8iu8dv.jpg")
-    OWNER_ID = int(os.environ.get("OWNER_ID", "8771195193"))
+    OWNER_ID = int(os.environ.get("OWNER_ID", ""))
     SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1002380726940"))
     LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002456565415"))
     FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
