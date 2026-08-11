@@ -31,14 +31,14 @@ def _require_int_env(name, default=None):
 class Config(object):
     # Pyrogram client config
     API_ID = 29245477
-    API_HASH = os.environ.get("API_HASH", "0abc83883262245c90ca337b7a0375c4")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "8298130083:AAES0zZ8Xpyeu_eWAfp-utYVqi1Gchv4G-U")
+    API_HASH = "0abc83883262245c90ca337b7a0375c4"
+    BOT_TOKEN = "8298130083:AAES0zZ8Xpyeu_eWAfp-utYVqi1Gchv4G-U"
     BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
     PORT = int(os.environ.get("PORT", "8980"))
 
     # Database config
     DB_NAME = os.environ.get("DB_NAME", "cluster0")
-    DB_URL = os.environ.get("DB_URL", "mongodb+srv://WaguriKaokuro:RtOEpJHhr1ldXp3h@cluster0.gvhnyzp.mongodb.net/?appName=Cluster0")
+    DB_URL = "mongodb+srv://WaguriKaokuro:RtOEpJHhr1ldXp3h@cluster0.gvhnyzp.mongodb.net/?appName=Cluster0"
 
     # Other configs
     ADMIN_URL = os.environ.get("ADMIN_URL", "https://t.me/EternalsHelplineBot")
@@ -49,8 +49,8 @@ class Config(object):
     LEADERBOARD_PIC = os.environ.get("LEADERBOARD_PIC", "https://files.catbox.moe/8iu8dv.jpg")
     FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
 
-    OWNER_ID = _require_int_env("OWNER_ID")
-    SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1003705304493"))
+    OWNER_ID = 8771195193
+    SUPPORT_CHAT = -1003705304493
     # Previously hardcoded with no way to override -> CHANNEL_INVALID errors
     # whenever the bot wasn't a member of that specific hardcoded channel.
     # Now configurable, with the old value kept as the default.
@@ -59,7 +59,7 @@ class Config(object):
     LEADERBOARD_DELETE_TIMER = int(os.environ.get("LEADERBOARD_DELETE_TIMER", "30"))
 
     # Web response configuration
-    WEBHOOK = os.environ.get("WEBHOOK", "True").lower() in ["true", "1", "yes"]
+    WEBHOOK = os.environ.get("WEBHOOK", "False").lower() in ["true", "1", "yes"]
 
     #========================================================================================   
     START_TXT = """<b><blockquote>ʜᴇʏ! {mention} ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴏᴜʀ ᴄᴏᴍᴍᴜɴɪᴛʏ ɪғ ʏᴏᴜ ᴡᴀɴᴛ ᴛᴏ sᴜᴘᴘᴏʀᴛ ᴏᴜʀ ᴄᴏᴍᴍᴜɴɪᴛʏ ʏᴏᴜ ᴄᴀɴ ᴅᴏ sᴏ ʙʏ sᴜʙsᴄʀɪʙɪɴɢ ᴛᴏ ᴏᴜʀ ᴄʜᴀɴɴᴇʟ</blockquote>
