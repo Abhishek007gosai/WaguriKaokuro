@@ -74,7 +74,12 @@ class Bot(Client):
                     )
                 )
             except Exception as e:
-                print(f"Failed to send message in chat {chat_id}: {e}")
+                print(
+                    f"Failed to send message in chat {chat_id}: {e}\n"
+                    f"  -> If this says CHANNEL_INVALID/PEER_ID_INVALID: make sure "
+                    f"this bot account is a member (ideally admin) of chat {chat_id}, "
+                    f"and that the ID is current (LOG_CHANNEL/SUPPORT_CHAT env vars)."
+                )
 
 Bot().run()
 # ----------------------------------------

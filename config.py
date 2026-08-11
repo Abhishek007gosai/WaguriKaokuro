@@ -10,9 +10,27 @@ id_pattern = re.compile(r'^.\d+$')
 # 𝐓𝐆 𝐈𝐃 : @𝐂𝐋𝐔𝐓𝐂𝐇𝟎𝟎𝟖
 # 𝐀𝐍𝐘 𝐈𝐒𝐒𝐔𝐄𝐒 𝐎𝐑 𝐀𝐃𝐃𝐈𝐍𝐆 𝐌𝐎𝐑𝐄 𝐓𝐇𝐈𝐍𝐆𝐬 𝐂𝐀𝐍 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐌𝐄
 # --
+def _require_int_env(name, default=None):
+    """Read an int env var with a clear error instead of a bare ValueError
+    when it's missing/blank (previously int(os.environ.get(name, "")) would
+    crash the whole app at import time with an unhelpful traceback)."""
+    raw = os.environ.get(name, "" if default is None else str(default))
+    if raw == "":
+        raise RuntimeError(
+            f"Required environment variable '{name}' is not set. "
+            f"Set it in your deployment platform's environment variables."
+        )
+    try:
+        return int(raw)
+    except ValueError:
+        raise RuntimeError(
+            f"Environment variable '{name}' must be an integer, got: {raw!r}"
+        )
+
+
 class Config(object):
     # Pyrogram client config
-    API_ID = int(os.environ.get("API_ID", ""))
+    API_ID = _require_int_env("API_ID")
     API_HASH = os.environ.get("API_HASH", "")
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
     BOT_USERNAME = os.environ.get("BOT_USERNAME", "WaguriKaokuroRobot")
@@ -31,9 +49,12 @@ class Config(object):
     LEADERBOARD_PIC = os.environ.get("LEADERBOARD_PIC", "https://files.catbox.moe/8iu8dv.jpg")
     FSUB_PIC = os.environ.get("FSUB_PIC", "https://files.catbox.moe/0c2o1j.jpg")
 
-    OWNER_ID = int(os.environ.get("OWNER_ID", ""))
+    OWNER_ID = _require_int_env("OWNER_ID")
     SUPPORT_CHAT = int(os.environ.get("SUPPORT_CHAT", "-1002380726940"))
-    LOG_CHANNEL = -1002456565415
+    # Previously hardcoded with no way to override -> CHANNEL_INVALID errors
+    # whenever the bot wasn't a member of that specific hardcoded channel.
+    # Now configurable, with the old value kept as the default.
+    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002456565415"))
 
     LEADERBOARD_DELETE_TIMER = int(os.environ.get("LEADERBOARD_DELETE_TIMER", "30"))
 
