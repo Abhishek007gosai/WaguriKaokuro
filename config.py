@@ -37,7 +37,7 @@ class Config(object):
     PORT = int(os.environ.get("PORT", "8980"))
 
     # Database config
-    DB_NAME = os.environ.get("DB_NAME", "cluster0")
+    DB_NAME = os.environ.get("DB_NAME", "")
     DB_URL = os.environ.get("DB_URL", "")
 
     # Other configs
