@@ -5,7 +5,7 @@ import logging
 import pyromod.listen
 from datetime import datetime, timedelta
 from pytz import timezone
-from pyrogram import Client, __version__
+from pyrogram import Client, idle, __version__
 from pyrogram.raw.all import layer
 from pyrogram.errors import FloodWait, RPCError
 from config import Config
@@ -115,7 +115,7 @@ async def _run_bot_with_backoff():
         attempt += 1
         try:
             await bot.start()
-            await bot.idle()
+            await idle()
             await bot.stop()
             return
         except FloodWait as e:
