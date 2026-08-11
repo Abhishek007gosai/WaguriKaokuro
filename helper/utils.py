@@ -1,4 +1,4 @@
-import math, time
+import math, time, logging
 from datetime import datetime
 from pytz import timezone
 from config import *
@@ -74,10 +74,20 @@ async def send_log(b, u):
         curr = datetime.now(timezone("Asia/Kolkata"))
         date = curr.strftime('%d %B, %Y')
         time = curr.strftime('%I:%M:%S %p')
-        await b.send_message(
-            Config.LOG_CHANNEL,
-            f"**--Nᴇᴡ Uꜱᴇʀ Sᴛᴀʀᴛᴇᴅ Tʜᴇ Bᴏᴛ--**\n\nUꜱᴇʀ: {u.mention}\nIᴅ: `{u.id}`\nUɴ: @{u.username}\n\nDᴀᴛᴇ: {date}\nTɪᴍᴇ: {time}\n\nBy: {b.mention}"
-        )
+        try:
+            await b.send_message(
+                Config.LOG_CHANNEL,
+                f"**--Nᴇᴡ Uꜱᴇʀ Sᴛᴀʀᴛᴇᴅ Tʜᴇ Bᴏᴛ--**\n\nUꜱᴇʀ: {u.mention}\nIᴅ: `{u.id}`\nUɴ: @{u.username}\n\nDᴀᴛᴇ: {date}\nTɪᴍᴇ: {time}\n\nBy: {b.mention}"
+            )
+        except Exception as e:
+            # Don't let a bad/inaccessible LOG_CHANNEL break the /start flow
+            # for every user (previously unhandled, so a CHANNEL_INVALID or
+            # similar error here would surface as a broken handler).
+            logging.error(
+                f"send_log: failed to send to LOG_CHANNEL ({Config.LOG_CHANNEL}): {e}. "
+                "Make sure the bot account is a member/admin of that channel, "
+                "or set the LOG_CHANNEL env var to a channel it has access to."
+            )
 
 def get_readable_time(seconds: int) -> str:
     count = 0

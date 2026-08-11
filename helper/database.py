@@ -16,12 +16,31 @@ from helper.utils import send_log
 # --
 class Seishiro:
     def __init__(self, uri, database_name):
+        if not uri:
+            raise ValueError(
+                "DB_URL is not set (or empty). Set the DB_URL environment "
+                "variable to your MongoDB Atlas connection string, e.g. "
+                "mongodb+srv://<user>:<password>@<cluster>.mongodb.net"
+            )
         try:
+            # NOTE: motor's server_info() is a coroutine and cannot be
+            # awaited here since __init__ is not async. Using a short-lived
+            # synchronous pymongo client instead lets us actually verify the
+            # connection (and DNS resolution of the SRV record) at startup,
+            # failing fast with a clear error instead of silently succeeding
+            # and only breaking later on the first real query.
+            import pymongo
+            sync_client = pymongo.MongoClient(uri, serverSelectionTimeoutMS=8000)
+            sync_client.admin.command("ping")
+            sync_client.close()
             self._client = motor.motor_asyncio.AsyncIOMotorClient(uri)
-            self._client.server_info()
             logging.info("Successfully connected to MongoDB")
         except Exception as e:
-            logging.error(f"Failed to connect to MongoDB: {e}")
+            logging.error(
+                f"Failed to connect to MongoDB using the configured DB_URL: {e}\n"
+                "Double-check DB_URL in your environment variables against the "
+                "current connection string shown in MongoDB Atlas (Connect > Drivers)."
+            )
             raise e
         self.database = self._client[database_name]
         self.channel_data = self.database['channels']
