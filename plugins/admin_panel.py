@@ -504,11 +504,22 @@ async def give_premium_cmd_handler(client, message):
                     text=f"👋 ʜᴇʏ {user.mention},\nᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴘᴜʀᴄʜᴀꜱɪɴɢ ᴘʀᴇᴍɪᴜᴍ.\nᴇɴᴊᴏʏ !! ✨🎉\n\n⏰ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇꜱꜱ : <code>{time}</code>\n⏳ ᴊᴏɪɴɪɴɢ ᴅᴀᴛᴇ : {current_time}\n\n⌛️ ᴇxᴘɪʀʏ ᴅᴀᴛᴇ : {expiry_str_in_ist}", disable_web_page_preview=True
                 )
                 
-                await client.send_message(
-                    chat_id=Config.LOG_CHANNEL,
-                    text=f"#Added_Premium\n\n• ᴜꜱᴇʀ : {user.mention}\n⚡ ᴜꜱᴇʀ ɪᴅ : <code>{user_id}</code>\n⏰ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇꜱꜱ : <code>{time}</code>\n\n⏳ ᴊᴏɪɴɪɴɢ ᴅᴀᴛᴇ : {current_time}\n\n⌛️ ᴇxᴘɪʀʏ ᴅᴀᴛᴇ : {expiry_str_in_ist}", 
-                    disable_web_page_preview=True
-                )
+                if Config.LOG_CHANNEL:
+                    try:
+                        await client.send_message(
+                            chat_id=Config.LOG_CHANNEL,
+                            text=(
+                                f"#Added_Premium\n\n"
+                                f"• ᴜꜱᴇʀ : {user.mention}\n"
+                                f"⚡ ᴜꜱᴇʀ ɪᴅ : <code>{user_id}</code>\n"
+                                f"⏰ ᴘʀᴇᴍɪᴜᴍ ᴀᴄᴄᴇꜱꜱ : <code>{time}</code>\n\n"
+                                f"⏳ ᴊᴏɪɴɪɴɢ ᴅᴀᴛᴇ : {current_time}\n\n"
+                                f"⌛️ ᴇxᴘɪʀʏ ᴅᴀᴛᴇ : {expiry_str_in_ist}"
+                            ),
+                            disable_web_page_preview=True
+                        )
+                    except Exception:
+                        pass
             else:
                 await message.reply_text("Iɴᴠᴀʟɪᴅ ᴛɪᴍᴇ ғᴏʀᴍᴀᴛ. Pʟᴇᴀsᴇ ᴜsᴇ '1 ᴅᴀʏ ғᴏʀ ᴅᴀʏs', '1 ʜᴏᴜʀ ғᴏʀ ʜᴏᴜʀs', ᴏʀ '1 ᴍɪɴ ғᴏʀ ᴍɪɴᴜᴛᴇs', ᴏʀ '1 ᴍᴏɴᴛʜ ғᴏʀ ᴍᴏɴᴛʜs' ᴏʀ '1 ʏᴇᴀʀ ғᴏʀ ʏᴇᴀʀ'.")
         else:
@@ -636,7 +647,11 @@ async def get_stats(bot, message):
 
 @Client.on_message(filters.command("broadcast") & filters.private & admin & filters.reply)
 async def broadcast_handler(bot: Client, m: Message):
-    await bot.send_message(Config.LOG_CHANNEL, f"Bʀᴏᴀᴅᴄᴀsᴛ Sᴛᴀʀᴛᴇᴅ Bʏ {m.from_user.mention}")
+    if Config.LOG_CHANNEL:
+        try:
+            await bot.send_message(Config.LOG_CHANNEL, f"Bʀᴏᴀᴅᴄᴀsᴛ Sᴛᴀʀᴛᴇᴅ Bʏ {m.from_user.mention}")
+        except Exception:
+            pass
     all_users = await rexbots.get_all_users()
     broadcast_msg = m.reply_to_message
     sts_msg = await m.reply_text("**Bʀᴏᴀᴅᴄᴀsᴛ Sᴛᴀʀᴛᴇᴅ...!!**")

@@ -20,10 +20,13 @@ from pyrogram.enums import ChatAction, ChatMemberStatus
 from pyrogram.errors import UserNotParticipant
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor  # Added missing import
-from plugins.antinsfw import check_anti_nsfw
 from helper.utils import progress_for_pyrogram, humanbytes, convert
 from helper.database import rexbots
-from plugins.start import *
+from plugins.start import (
+    handle_verification_callback,
+    send_verification_message,
+    is_user_verified,
+)
 from config import Config
 from functools import wraps
 from os import makedirs
@@ -32,7 +35,14 @@ from os import makedirs
 # 𝐓𝐆 𝐈𝐃 : @𝐂𝐋𝐔𝐓𝐂𝐇𝟎𝟎𝟖
 # 𝐀𝐍𝐘 𝐈𝐒𝐒𝐔𝐄𝐒 𝐎𝐑 𝐀𝐃𝐃𝐈𝐍𝐆 𝐌𝐎𝐑𝐄 𝐓𝐇𝐈𝐍𝐆𝐬 𝐂𝐀𝐍 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐌𝐄
 # ----------------------------------------
-Semaphore = asyncio.Semaphore(3)  # Fixed: Should be asyncio.Semaphore
+# Must NOT create asyncio.Semaphore at import time (binds to wrong loop).
+_semaphore = None
+
+def _get_semaphore():
+    global _semaphore
+    if _semaphore is None:
+        _semaphore = asyncio.Semaphore(3)
+    return _semaphore
 chat_data_cache = {}
 ADMIN_URL = Config.ADMIN_URL
 FSUB_PIC = Config.FSUB_PIC
@@ -445,7 +455,7 @@ def extract_episode_number(filename):
         r'MULTI(?:audio)?',
         r'DUAL(?:audio)?',
     ]
-    quality_pattern_for_exclusion = r'(?:' + '|'.join([f'(?:[\s._-]*{ind})' for ind in quality_and_year_indicators]) + r')'
+    quality_pattern_for_exclusion = r'(?:' + '|'.join([f'(?:[\\s._-]*{ind})' for ind in quality_and_year_indicators]) + r')'
 
     patterns = [
         re.compile(r'S\d+[.-_]?E(\d+)', re.IGNORECASE),
@@ -518,7 +528,7 @@ def extract_season_number(filename):
         r'MULTI(?:audio)?',
         r'DUAL(?:audio)?',
     ]
-    quality_pattern_for_exclusion = r'(?:' + '|'.join([f'(?:[\s._-]*{ind})' for ind in quality_and_year_indicators]) + r')'
+    quality_pattern_for_exclusion = r'(?:' + '|'.join([f'(?:[\\s._-]*{ind})' for ind in quality_and_year_indicators]) + r')'
 
 
     patterns = [
@@ -652,7 +662,7 @@ async def start_sequence(client, message: Message):
 @check_fsub
 async def auto_rename_files(client, message):
     """Main handler for auto-renaming files"""
-    async with Semaphore:
+    async with _get_semaphore():
         # Initialize variables at the start to avoid UnboundLocalError
         msg = None 
         download_path = None
@@ -721,10 +731,6 @@ async def auto_rename_files(client, message):
                     media_type = "audio"
                 else:
                     media_type = "video"
-
-            if await check_anti_nsfw(file_name, message):
-                await message.reply_text("NSFW ᴄᴏɴᴛᴇɴᴛ ᴅᴇᴛᴇᴄᴛᴇᴅ. Fɪʟᴇ ᴜᴘʟᴏᴀᴅ ʀᴇᴊᴇᴄᴛᴇᴅ.")
-                return
 
             episode_number = extract_episode_number(file_name)
             season_number = extract_season_number(file_name)
@@ -946,7 +952,9 @@ async def auto_rename_files(client, message):
                     )
                     
                     dump_channel = Config.DUMP_CHANNEL
-                    if media_type == "document" and sent_message.document:
+                    if not dump_channel:
+                        pass
+                    elif media_type == "document" and sent_message.document:
                         await client.send_document(
                             chat_id=dump_channel,
                             document=sent_message.document.file_id,
