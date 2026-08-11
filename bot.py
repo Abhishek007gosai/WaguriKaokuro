@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # 𝐓𝐆 𝐈𝐃 : @𝐂𝐋𝐔𝐓𝐂𝐇𝟎𝟎𝟖
 # 𝐀𝐍𝐘 𝐈𝐒𝐒𝐔𝐄𝐒 𝐎𝐑 𝐀𝐃𝐃𝐈𝐍𝐆 𝐌𝐎𝐑𝐄 𝐓𝐇𝐈𝐍𝐆𝐬 𝐂𝐀𝐍 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐌𝐄
 # --
-pyrogram.utils.MIN_CHANNEL_ID = -1002964099736
+# Keep Pyrogram default MIN_CHANNEL_ID (do not hardcode a project-specific value)
 # ----------------------------------------
 # 𝐌𝐀𝐃𝐄 𝐁𝐘 𝐀𝐁𝐇𝐈
 # 𝐓𝐆 𝐈𝐃 : @𝐂𝐋𝐔𝐓𝐂𝐇𝟎𝟎𝟖
@@ -150,21 +150,25 @@ async def _run_bot_with_backoff():
             raise
 
 
-def main():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    # Health server first, unconditionally, before anything Telegram-related.
-    loop.run_until_complete(_run_health_server())
+async def _async_main():
+    # One shared event loop for health server + Pyrogram + Motor.
+    # Creating a second loop after imports (old pattern) caused
+    # "Future attached to a different loop" on every /start.
+    await _run_health_server()
     try:
-        loop.run_until_complete(_run_bot_with_backoff())
+        await _run_bot_with_backoff()
     except (FloodWait, RPCError):
-        # Keep the process (and the already-bound health server) alive for a
-        # short grace period instead of exiting instantly, so Koyeb doesn't
-        # immediately spin up a fresh restart on top of a FloodWait we're
-        # already inside.
-        logging.error("Bot failed to start. Staying up briefly before exiting so Koyeb's restart isn't instantaneous.")
-        loop.run_until_complete(asyncio.sleep(30))
+        logging.error(
+            "Bot failed to start. Staying up briefly before exiting so "
+            "Koyeb's restart isn't instantaneous."
+        )
+        await asyncio.sleep(30)
         raise
+
+
+def main():
+    try:
+        asyncio.run(_async_main())
     except KeyboardInterrupt:
         pass
 

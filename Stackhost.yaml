@@ -1,0 +1,16 @@
+user:
+  name: Eren Yeager 
+  github: TheJeager
+
+runtime:
+  image: "python:3.11-slim"
+
+commands:
+  package: "unzip"
+  build:
+    - "pip install -r requirements.txt"
+  start: "python3 bot.py"
+
+repository:
+  branch: "main"
+  auto_deploy: False
