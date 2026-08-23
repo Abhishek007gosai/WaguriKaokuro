@@ -787,26 +787,105 @@ async def auto_rename_files(client, message):
             for pattern in quality_patterns:
                 template = pattern.sub(quality_replacement, template)
 
+            # {name} = first 3 letters of original filename (without extension)
+            original_base = os.path.splitext(file_name)[0] if file_name else ""
+            # Keep only alphanumeric for a clean short name
+            clean_base = re.sub(r'[^A-Za-z0-9]', '', original_base)
+            name_short = (clean_base[:3] if clean_base else "FIL").upper()
+            name_patterns = [
+                re.compile(r'\{name\}', re.IGNORECASE),
+                re.compile(r'\{NAME\}', re.IGNORECASE),
+            ]
+            for pattern in name_patterns:
+                template = pattern.sub(name_short, template)
+
             template = re.sub(r'\[\s*\]', '', template)
             template = re.sub(r'\(\s*\)', '', template)
             template = re.sub(r'\{\s*\}', '', template)
 
-            _, file_extension = os.path.splitext(file_name)
+            # Sanitize template / filename so it can never become an absolute path
+            # or contain path separators (os.path.join treats leading / as absolute)
+            template = template.strip()
+            template = template.lstrip('/\\')                    # remove leading slashes
+            template = re.sub(r'[/\\]+', '_', template)          # replace remaining path seps
+            template = re.sub(r'[<>:"|?*\x00-\x1f]', '', template)  # remove illegal filename chars
+            template = template.strip('. ')                      # no leading/trailing dots/spaces
+            if not template:
+                template = "renamed_file"
 
-            # Force MP4 files to be converted to MKV to ensure subtitle compatibility
-            if file_extension.lower() in ['.mp4', '.m4v']:
+            _, file_extension = os.path.splitext(file_name)
+            file_extension = (file_extension or '').lower()
+
+            # ---- File category & target extension ----
+            VIDEO_EXTS = {
+                '.mp4', '.m4v', '.mkv', '.avi', '.webm', '.mov', '.flv',
+                '.wmv', '.ts', '.m2ts', '.mpeg', '.mpg', '.3gp', '.vob', '.mts'
+            }
+            AUDIO_EXTS = {
+                '.mp3', '.flac', '.wav', '.ogg', '.m4a', '.aac', '.opus', '.wma', '.ape'
+            }
+            IMAGE_EXTS = {
+                '.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.tiff', '.tif'
+            }
+            # Music stored as .mp4 (common) is treated as audio when Telegram sent it as audio
+            is_video_file = file_extension in VIDEO_EXTS or media_type == "video"
+            is_audio_file = file_extension in AUDIO_EXTS or media_type == "audio"
+            is_image_file = file_extension in IMAGE_EXTS
+            is_pdf_file = file_extension == '.pdf'
+
+            # Target extension rules:
+            # 1) Any video → .mkv
+            # 2) Images & text documents → .pdf
+            # 3) Music / audio → keep original (music .mp4 → .m4a)
+            # 4) Already PDF → .pdf
+            # 5) Other documents (docx, zip, etc.) → keep original extension
+            TEXT_DOC_EXTS = {'.txt', '.md', '.csv', '.log', '.json', '.xml', '.html', '.htm'}
+            if is_video_file and not is_audio_file:
                 final_extension = ".mkv"
+                convert_kind = "video_mkv"
+            elif is_audio_file or (file_extension == '.mp4' and media_type == "audio"):
+                # music .mp4 → remux to .m4a for proper audio container
+                if file_extension in ('.mp4', '.m4v'):
+                    final_extension = ".m4a"
+                    convert_kind = "audio_m4a"
+                else:
+                    final_extension = file_extension or ".mp3"
+                    convert_kind = "audio_keep"
+            elif is_image_file:
+                final_extension = ".pdf"
+                convert_kind = "image_pdf"
+            elif file_extension in TEXT_DOC_EXTS:
+                final_extension = ".pdf"
+                convert_kind = "doc_pdf"
+            elif is_pdf_file:
+                final_extension = ".pdf"
+                convert_kind = "pdf_keep"
             else:
-                final_extension = file_extension
+                # Unknown / office docs / archives → keep original
+                final_extension = file_extension if file_extension else ".bin"
+                convert_kind = "keep"
 
             if not final_extension.startswith('.'):
-                final_extension = '.' + final_extension if file_extension else ''
-    
-            new_file_name = f"{template}{final_extension}"
+                final_extension = '.' + final_extension
+
+            # Avoid double extensions (e.g. .mkv.mkv) if template already ends with one
+            template_base, template_ext = os.path.splitext(template)
+            if template_ext.lower() == final_extension.lower():
+                new_file_name = f"{template_base}{final_extension}"
+            else:
+                new_file_name = f"{template}{final_extension}"
+
             user_folder = str(user_id)
-            download_path = os.path.join("downloads", user_folder, new_file_name)
+            # Download with ORIGINAL extension so ffmpeg/pillow can detect format
+            download_name = f"{template_base or 'file'}{file_extension or ''}"
+            download_path = os.path.join("downloads", user_folder, download_name)
             metadata_path = os.path.join("metadata", user_folder, new_file_name)
             output_path = os.path.join("processed", user_folder, new_file_name)
+
+            # Extra safety: never allow absolute paths
+            for p in (download_path, metadata_path, output_path):
+                if os.path.isabs(p):
+                    raise RuntimeError(f"Invalid path generated (absolute): {p}")
 
             # Create user-specific directories
             os.makedirs(os.path.dirname(download_path), exist_ok=True)
@@ -827,35 +906,84 @@ async def auto_rename_files(client, message):
                 await msg.edit(f"Dᴏᴡɴʟᴏᴀᴅ ғᴀɪʟᴇᴅ: {e}")
                 raise
 
-            if file_extension.lower() in ['.mp4', '.m4v']:
-                await msg.edit("MP4! Dᴇᴛᴇᴄᴛᴇᴅ. Cᴏɴᴠᴇʀᴛɪɴɢ ᴛᴏ MKV...")
-                await message.reply_chat_action(ChatAction.PLAYING)
-                try:
-                    await convert_to_mkv(file_path, metadata_path, user_id)
+            # Check whether user wants metadata applied
+            metadata_enabled = (await rexbots.get_metadata(user_id)) == "On"
+
+            # ---- Conversion step ----
+            try:
+                if convert_kind == "video_mkv":
+                    await msg.edit("Vɪᴅᴇᴏ ᴅᴇᴛᴇᴄᴛᴇᴅ. Cᴏɴᴠᴇʀᴛɪɴɢ ᴛᴏ MKV...")
+                    await message.reply_chat_action(ChatAction.PLAYING)
+                    await convert_to_mkv(file_path, metadata_path, user_id, apply_metadata=metadata_enabled)
                     file_path = metadata_path
-                except Exception as e:
-                    await msg.edit(f"❌ Eʀʀᴏʀ Dᴜʀɪɴɢ ᴄᴏɴᴠᴇʀᴛɪɴɢ ᴛᴏ ᴍᴋᴠ... {str(e)}")
-                    return
+                elif convert_kind == "audio_m4a":
+                    await msg.edit("Mᴜsɪᴄ MP4 ᴅᴇᴛᴇᴄᴛᴇᴅ. Cᴏɴᴠᴇʀᴛɪɴɢ ᴛᴏ M4A...")
+                    await message.reply_chat_action(ChatAction.PLAYING)
+                    await convert_to_m4a(file_path, metadata_path, user_id, apply_metadata=metadata_enabled)
+                    file_path = metadata_path
+                elif convert_kind in ("image_pdf", "doc_pdf"):
+                    await msg.edit("Dᴏᴄᴜᴍᴇɴᴛ/Iᴍᴀɢᴇ ᴅᴇᴛᴇᴄᴛᴇᴅ. Cᴏɴᴠᴇʀᴛɪɴɢ ᴛᴏ PDF...")
+                    await message.reply_chat_action(ChatAction.PLAYING)
+                    await convert_to_pdf(file_path, metadata_path)
+                    file_path = metadata_path
+                elif convert_kind == "pdf_keep":
+                    # Optional metadata pass for PDF is not supported via ffmpeg the same way;
+                    # just copy so paths stay consistent
+                    if file_path != metadata_path:
+                        shutil.copy2(file_path, metadata_path)
+                        file_path = metadata_path
+                elif convert_kind in ("audio_keep", "keep"):
+                    # Metadata only when enabled (ffmpeg works for many audio containers)
+                    if metadata_enabled and convert_kind == "audio_keep":
+                        await msg.edit("Nᴏᴡ ᴀᴅᴅɪɴɢ ᴍᴇᴛᴀᴅᴀᴛᴀ ᴅᴜᴅᴇ...!!")
+                        await message.reply_chat_action(ChatAction.PLAYING)
+                        try:
+                            await add_metadata(file_path, metadata_path, user_id)
+                            file_path = metadata_path
+                        except Exception as e:
+                            logger.error(f"Failed to add metadata: {e}")
+                    elif file_path != metadata_path and convert_kind == "keep":
+                        # No conversion needed; copy for consistent cleanup paths
+                        try:
+                            shutil.copy2(file_path, metadata_path)
+                            file_path = metadata_path
+                        except Exception:
+                            pass
+                else:
+                    # Fallback: metadata only if enabled and not already converted
+                    if metadata_enabled:
+                        await msg.edit("Nᴏᴡ ᴀᴅᴅɪɴɢ ᴍᴇᴛᴀᴅᴀᴛᴀ ᴅᴜᴅᴇ...!!")
+                        await message.reply_chat_action(ChatAction.PLAYING)
+                        try:
+                            await add_metadata(file_path, metadata_path, user_id)
+                            file_path = metadata_path
+                        except Exception as e:
+                            logger.error(f"Failed to add metadata: {e}")
+            except Exception as e:
+                await msg.edit(f"❌ Eʀʀᴏʀ ᴅᴜʀɪɴɢ ᴄᴏɴᴠᴇʀsɪᴏɴ: {str(e)}")
+                return
 
             # Detect duration for video or audio files
             duration = 0
-            if media_type in ["video", "audio"] or file_name.endswith((".mp4", ".mkv", ".avi", ".webm", ".mp3", ".flac", ".wav", ".ogg")):
+            if convert_kind in ("video_mkv", "audio_m4a", "audio_keep") or media_type in ("video", "audio"):
                 try:
                     duration = await detect_duration(file_path)
                 except Exception as e:
                     logger.error(f"Failed to detect duration: {e}")
                     duration = 0
             human_readable_duration = convert(duration) if duration > 0 else "N/A"
-            
-            # Only add metadata if not already converted (to avoid double processing)
-            if not file_extension.lower() in ['.mp4', '.m4v']:
-                await msg.edit("Nᴏᴡ ᴀᴅᴅɪɴɢ ᴍᴇᴛᴀᴅᴀᴛᴀ ᴅᴜᴅᴇ...!!")
-                await message.reply_chat_action(ChatAction.PLAYING)
-                try:
-                    await add_metadata(file_path, metadata_path, user_id)
-                    file_path = metadata_path
-                except Exception as e:
-                    logger.error(f"Failed to add metadata: {e}")
+
+            # Adjust media_type for upload based on what we produced
+            if convert_kind == "video_mkv":
+                # Prefer user's media preference; default to document for mkv (better for large files)
+                if media_preference in ("video", "document"):
+                    media_type = media_preference
+                else:
+                    media_type = "document"
+            elif convert_kind in ("audio_m4a", "audio_keep"):
+                media_type = "audio"
+            elif convert_kind in ("image_pdf", "doc_pdf", "pdf_keep"):
+                media_type = "document"
 
             await msg.edit("Wᴇᴡ... Iᴀm Uᴘʟᴏᴀᴅɪɴɢ ʏᴏᴜʀ ғɪʟᴇ...!!")
             await message.reply_chat_action(ChatAction.PLAYING)
@@ -878,11 +1006,15 @@ async def auto_rename_files(client, message):
             c_caption = await rexbots.get_caption(message.chat.id)
             
             if c_caption:
-                caption = c_caption.format(
-                    filename=new_file_name,
-                    filesize=humanbytes(file_size),
-                    duration=human_readable_duration
-                )
+                try:
+                    caption = c_caption.format(
+                        filename=new_file_name,
+                        filesize=humanbytes(file_size),
+                        duration=human_readable_duration
+                    )
+                except (KeyError, ValueError, IndexError):
+                    # Fallback if user caption template has invalid placeholders
+                    caption = f"**{new_file_name}**"
             else:
                 caption = f"**{new_file_name}**"
                 
@@ -906,10 +1038,12 @@ async def auto_rename_files(client, message):
                     ph_path = None
 
             # Define common upload parameters
+            # Explicit file_name ensures both the Telegram file name AND caption show the new name
             common_upload_params = {
                 'chat_id': message.chat.id,
                 'caption': caption,
                 'thumb': ph_path,
+                'file_name': new_file_name,
                 'progress': progress_for_pyrogram,
                 'progress_args': ("Uᴘʟᴏᴀᴅ sᴛᴀʀᴛᴇᴅ ᴅᴜᴅᴇ...!!", msg, time.time())
             }
@@ -930,7 +1064,14 @@ async def auto_rename_files(client, message):
             await msg.delete()
 
         except Exception as e:
-            await msg.edit(f"❌ Eʀʀᴏʀ ᴅᴜʀɪɴɢ ʀᴇɴᴀᴍɪɴɢ: {str(e)}")
+            err_text = f"❌ Eʀʀᴏʀ ᴅᴜʀɪɴɢ ʀᴇɴᴀᴍɪɴɢ: {str(e)}"
+            try:
+                if msg:
+                    await msg.edit(err_text)
+                else:
+                    await message.reply_text(err_text)
+            except Exception:
+                pass
             raise
         finally:
             # Clean up files
@@ -1038,6 +1179,13 @@ async def add_metadata(input_path, output_path, user_id):
     if not ffmpeg_cmd:
         raise RuntimeError("FFmpeg not found in PATH")
 
+    # Guard against accidental in-place edit (FFmpeg forbids same input/output)
+    if os.path.abspath(input_path) == os.path.abspath(output_path):
+        raise RuntimeError(
+            f"Input and output paths are identical ({input_path}). "
+            "This usually means the rename template produced an absolute path."
+        )
+
     metadata_command = [
         ffmpeg_cmd,
         '-i', input_path,
@@ -1066,33 +1214,47 @@ async def add_metadata(input_path, output_path, user_id):
     if process.returncode != 0:
         raise RuntimeError(f"FFmpeg error: {stderr.decode()}")
 
-async def convert_to_mkv(input_path, output_path, user_id):
-    """Convert video file to MKV format"""
+async def convert_to_mkv(input_path, output_path, user_id, apply_metadata=True):
+    """Convert video file to MKV format (stream copy). Optionally apply metadata tags."""
     ffmpeg_cmd = shutil.which('ffmpeg')
     if not ffmpeg_cmd:
         raise RuntimeError("FFmpeg not found in PATH")
 
-    metadata_add_cmd = [
+    # Guard against accidental in-place edit (FFmpeg forbids same input/output)
+    if os.path.abspath(input_path) == os.path.abspath(output_path):
+        raise RuntimeError(
+            f"Input and output paths are identical ({input_path}). "
+            "This usually means the rename template produced an absolute path."
+        )
+
+    cmd = [
         ffmpeg_cmd,
         '-hide_banner',
         '-i', input_path,
-        '-metadata', f'title={await rexbots.get_title(user_id)}',
-        '-metadata', f'artist={await rexbots.get_artist(user_id)}',
-        '-metadata', f'author={await rexbots.get_author(user_id)}',
-        '-metadata:s:v', f'title={await rexbots.get_video(user_id)}',
-        '-metadata:s:a', f'title={await rexbots.get_audio(user_id)}',
-        '-metadata:s:s', f'title={await rexbots.get_subtitle(user_id)}',
-        '-metadata', f'encoded_by={await rexbots.get_encoded_by(user_id)}',
-        '-metadata', f'custom_tag={await rexbots.get_custom_tag(user_id)}',
+    ]
+
+    if apply_metadata:
+        cmd.extend([
+            '-metadata', f'title={await rexbots.get_title(user_id)}',
+            '-metadata', f'artist={await rexbots.get_artist(user_id)}',
+            '-metadata', f'author={await rexbots.get_author(user_id)}',
+            '-metadata:s:v', f'title={await rexbots.get_video(user_id)}',
+            '-metadata:s:a', f'title={await rexbots.get_audio(user_id)}',
+            '-metadata:s:s', f'title={await rexbots.get_subtitle(user_id)}',
+            '-metadata', f'encoded_by={await rexbots.get_encoded_by(user_id)}',
+            '-metadata', f'custom_tag={await rexbots.get_custom_tag(user_id)}',
+        ])
+
+    cmd.extend([
         '-map', '0',
         '-c', 'copy',
         '-f', 'matroska',
         '-y',
         output_path
-    ]
+    ])
 
     process = await asyncio.create_subprocess_exec(
-        *metadata_add_cmd,
+        *cmd,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
@@ -1101,6 +1263,165 @@ async def convert_to_mkv(input_path, output_path, user_id):
     if process.returncode != 0:
         error_msg = stderr.decode().strip()
         raise RuntimeError(f"MKV conversion failed: {error_msg}")
+
+
+async def convert_to_m4a(input_path, output_path, user_id, apply_metadata=True):
+    """Remux music/video-in-mp4 to M4A audio container (stream copy when possible)."""
+    ffmpeg_cmd = shutil.which('ffmpeg')
+    if not ffmpeg_cmd:
+        raise RuntimeError("FFmpeg not found in PATH")
+
+    if os.path.abspath(input_path) == os.path.abspath(output_path):
+        raise RuntimeError(
+            f"Input and output paths are identical ({input_path}). "
+            "This usually means the rename template produced an absolute path."
+        )
+
+    cmd = [
+        ffmpeg_cmd,
+        '-hide_banner',
+        '-i', input_path,
+        '-vn',                 # drop video track if present
+        '-map', '0:a:0?',
+        '-c:a', 'copy',
+    ]
+
+    if apply_metadata:
+        cmd.extend([
+            '-metadata', f'title={await rexbots.get_title(user_id)}',
+            '-metadata', f'artist={await rexbots.get_artist(user_id)}',
+            '-metadata', f'author={await rexbots.get_author(user_id)}',
+            '-metadata', f'encoded_by={await rexbots.get_encoded_by(user_id)}',
+            '-metadata', f'custom_tag={await rexbots.get_custom_tag(user_id)}',
+        ])
+
+    cmd.extend(['-y', output_path])
+
+    process = await asyncio.create_subprocess_exec(
+        *cmd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    _, stderr = await process.communicate()
+
+    if process.returncode != 0:
+        # Fallback: re-encode to AAC if stream copy fails
+        cmd_fallback = [
+            ffmpeg_cmd, '-hide_banner', '-i', input_path,
+            '-vn', '-map', '0:a:0?',
+            '-c:a', 'aac', '-b:a', '192k',
+            '-y', output_path
+        ]
+        process2 = await asyncio.create_subprocess_exec(
+            *cmd_fallback,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        _, stderr2 = await process2.communicate()
+        if process2.returncode != 0:
+            raise RuntimeError(f"M4A conversion failed: {stderr2.decode().strip()}")
+
+
+async def convert_to_pdf(input_path, output_path):
+    """
+    Convert image (or simple text) files to PDF using Pillow.
+    Non-image documents that Pillow cannot open are copied as-is only if already PDF;
+    otherwise a minimal PDF is created from available content when possible.
+    """
+    if os.path.abspath(input_path) == os.path.abspath(output_path):
+        raise RuntimeError(
+            f"Input and output paths are identical ({input_path})."
+        )
+
+    ext = os.path.splitext(input_path)[1].lower()
+
+    # Already PDF → just copy
+    if ext == '.pdf':
+        shutil.copy2(input_path, output_path)
+        return
+
+    # Images → RGB PDF via Pillow
+    image_exts = {'.jpg', '.jpeg', '.png', '.webp', '.bmp', '.gif', '.tiff', '.tif'}
+    if ext in image_exts:
+        try:
+            img = Image.open(input_path)
+            # Handle multi-frame (GIF/TIFF) – take first frame for simplicity
+            if getattr(img, 'is_animated', False) or getattr(img, 'n_frames', 1) > 1:
+                img.seek(0)
+            if img.mode in ('RGBA', 'P', 'LA'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                if img.mode == 'P':
+                    img = img.convert('RGBA')
+                background.paste(img, mask=img.split()[-1] if img.mode in ('RGBA', 'LA') else None)
+                img = background
+            elif img.mode != 'RGB':
+                img = img.convert('RGB')
+            img.save(output_path, 'PDF', resolution=100.0)
+            return
+        except Exception as e:
+            raise RuntimeError(f"Image→PDF conversion failed: {e}")
+
+    # Plain text → simple multi-page PDF using Pillow
+    text_exts = {'.txt', '.md', '.csv', '.log', '.json', '.xml', '.html', '.htm'}
+    if ext in text_exts:
+        try:
+            with open(input_path, 'r', encoding='utf-8', errors='replace') as f:
+                text = f.read()
+            # Render text onto white pages
+            from PIL import ImageDraw, ImageFont
+            page_w, page_h = 595, 842  # A4-ish at 72dpi
+            margin = 40
+            line_h = 14
+            try:
+                font = ImageFont.load_default()
+            except Exception:
+                font = None
+
+            lines = []
+            for paragraph in text.splitlines() or ['']:
+                # crude wrap
+                words = paragraph.split(' ')
+                current = ''
+                for w in words:
+                    test = (current + ' ' + w).strip()
+                    if font and hasattr(font, 'getlength'):
+                        too_long = font.getlength(test) > (page_w - 2 * margin)
+                    else:
+                        too_long = len(test) > 90
+                    if too_long and current:
+                        lines.append(current)
+                        current = w
+                    else:
+                        current = test
+                lines.append(current)
+
+            pages = []
+            y = margin
+            page = Image.new('RGB', (page_w, page_h), 'white')
+            draw = ImageDraw.Draw(page)
+            for line in lines:
+                if y + line_h > page_h - margin:
+                    pages.append(page)
+                    page = Image.new('RGB', (page_w, page_h), 'white')
+                    draw = ImageDraw.Draw(page)
+                    y = margin
+                draw.text((margin, y), line[:200], fill='black', font=font)
+                y += line_h
+            pages.append(page)
+
+            if len(pages) == 1:
+                pages[0].save(output_path, 'PDF', resolution=100.0)
+            else:
+                pages[0].save(output_path, 'PDF', resolution=100.0, save_all=True, append_images=pages[1:])
+            return
+        except Exception as e:
+            raise RuntimeError(f"Text→PDF conversion failed: {e}")
+
+    # Unsupported document type for PDF conversion
+    raise RuntimeError(
+        f"Cannot convert '{ext}' to PDF. Supported: images ({', '.join(sorted(image_exts))}) "
+        f"and text files ({', '.join(sorted(text_exts))})."
+    )
 
 
 # ----------------------------------------

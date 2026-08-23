@@ -228,11 +228,21 @@ async def auto_rename_command(client, message):
         await message.reply_text(
             "**Please provide a new name after the command /autorename**\n\n"
             "Here's how to use it:\n"
-            "**Example format:** `/autorename [S{season} E{episode}] Your Anime Name [Quality] [Audio] @AnimeNexusNetwork`"
+            "**Example format:** `/autorename [S{season} E{episode}] {name} Your Anime Name [Quality] [Audio] @AnimeNexusNetwork`\n\n"
+            "**Variables:** `{season}` `{episode}` `{quality}` `{audio}` `{name}` (first 3 letters of original filename)"
         )
         return
 
     format_template = command_parts[1].strip()
+
+    # Warn if template starts with / or contains path separators (would break os.path.join)
+    warning = ""
+    if format_template.startswith(('/', '\\')) or '/' in format_template or '\\' in format_template:
+        warning = (
+            "\n\n⚠️ **Warning:** Your template starts with `/` or contains path separators. "
+            "These will be automatically cleaned so the file does not become an absolute path. "
+            "Prefer templates without leading slashes."
+        )
 
     # Save the format template in the database
     await rexbots.set_format_template(user_id, format_template)
@@ -243,6 +253,7 @@ async def auto_rename_command(client, message):
         "📩 Simply send the file(s) you want to rename.\n\n"
         f"**Your saved template:** `{format_template}`\n\n"
         "Remember, it might take some time, but I'll ensure your files are renamed perfectly!✨"
+        f"{warning}"
     )
 
 @Client.on_message(filters.private & filters.command("setmedia"))
