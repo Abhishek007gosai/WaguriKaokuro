@@ -87,7 +87,7 @@ class Seishiro:
             caption=None,
             verification_mode_1=True,
             verification_mode_2=True,
-            metadata=True,
+            metadata="Off",
             metadata_code="Telegram : @AnimeNexusNetwork",
             format_template=None,
             rename_count=0,
@@ -630,11 +630,19 @@ class Seishiro:
         return self.banned_users.find({"ban_status.is_banned": True})
 
     async def get_metadata(self, user_id):
+        """Always return 'On' or 'Off' (normalizes old boolean True/False values)."""
         user = await self.col.find_one({'_id': int(user_id)})
-        return user.get('metadata', "Off")
+        if not user:
+            return "Off"
+        val = user.get('metadata', "Off")
+        if val is True or val == "On" or str(val).lower() in ("true", "1", "yes", "on"):
+            return "On"
+        return "Off"
 
     async def set_metadata(self, user_id, metadata):
-        await self.col.update_one({'_id': int(user_id)}, {'$set': {'metadata': metadata}})
+        # Normalize to "On" / "Off" only
+        normalized = "On" if str(metadata).lower() in ("on", "true", "1", "yes") else "Off"
+        await self.col.update_one({'_id': int(user_id)}, {'$set': {'metadata': normalized}})
 
     async def get_title(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
