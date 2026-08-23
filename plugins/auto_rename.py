@@ -229,7 +229,7 @@ async def auto_rename_command(client, message):
             "**Please provide a new name after the command /autorename**\n\n"
             "Here's how to use it:\n"
             "**Example format:** `/autorename [S{season} E{episode}] {name} Your Anime Name [Quality] [Audio] @AnimeNexusNetwork`\n\n"
-            "**Variables:** `{season}` `{episode}` `{quality}` `{audio}` `{name}` (first 3 letters of original filename)"
+            "**Variables:** `{season}` `{episode}` `{quality}` `{audio}` `{name}` (first 3 words of title from filename)"
         )
         return
 

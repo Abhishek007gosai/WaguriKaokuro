@@ -624,23 +624,165 @@ def extract_audio_info(filename):
 # 𝐓𝐆 𝐈𝐃 : @𝐂𝐋𝐔𝐓𝐂𝐇𝟎𝟎𝟖
 # 𝐀𝐍𝐘 𝐈𝐒𝐒𝐔𝐄𝐒 𝐎𝐑 𝐀𝐃𝐃𝐈𝐍𝐆 𝐌𝐎𝐑𝐄 𝐓𝐇𝐈𝐍𝐆𝐬 𝐂𝐀𝐍 𝐂𝐎𝐍𝐓𝐀𝐂𝐓 𝐌𝐄
 # ----------------------------------------
-def extract_quality(filename):
-    """Extract video quality from filename."""
-    patterns = [
-        re.compile(r'\b(Hdrip|4K|2K|2160p|1440p|1080p|720p|480p|360p)\b', re.IGNORECASE),
-        re.compile(r'\b(HD(?:RIP)?|WEB(?:-)?DL|BLURAY)\b', re.IGNORECASE),
-        re.compile(r'\b(X264|X265|HEVC)\b', re.IGNORECASE),
-    ]
+def normalize_quality_label(raw: str) -> str:
+    """Normalize quality string to a clean label like 360p, 1080p, 4K."""
+    if not raw:
+        return ""
+    s = raw.strip()
+    low = s.lower().replace(" ", "")
+    mapping = {
+        "360p": "360p", "480p": "480p", "540p": "540p", "576p": "576p",
+        "720p": "720p", "900p": "900p", "1080p": "1080p", "1440p": "1440p",
+        "2160p": "2160p", "4k": "4K", "2k": "2K", "8k": "8K",
+        "hdrip": "HDRip", "hd": "HD", "fhd": "FHD", "uhd": "UHD",
+        "web-dl": "WEB-DL", "webdl": "WEB-DL", "webrip": "WEBRip",
+        "bluray": "BluRay", "bdrip": "BDRip", "dvdrip": "DVDRip",
+        "x264": "x264", "x265": "x265", "hevc": "HEVC", "avc": "AVC",
+    }
+    if low in mapping:
+        return mapping[low]
+    # bare number like 1080 → 1080p
+    if re.fullmatch(r"\d{3,4}", low):
+        return f"{low}p"
+    return s
 
-    for pattern in patterns:
-        match = re.search(pattern, filename)
-        if match:
-            found_quality = match.group(1)
-            if found_quality.lower() in ["4k", "2k", "hdrip", "web-dl", "bluray"]:
-                return found_quality.upper() if found_quality.upper() in ["4K", "2K"] else found_quality.capitalize()
-            return found_quality
+
+def quality_from_resolution(width, height) -> str | None:
+    """Map pixel size to a quality label (uses vertical resolution for landscape)."""
+    if not height and not width:
+        return None
+    h = int(height or 0)
+    w = int(width or 0)
+    # Landscape → height is the "p" value; portrait → width
+    if w and h:
+        dim = h if w >= h else w
+    else:
+        dim = h or w
+    if dim >= 2160:
+        return "2160p"
+    if dim >= 1440:
+        return "1440p"
+    if dim >= 1080:
+        return "1080p"
+    if dim >= 720:
+        return "720p"
+    if dim >= 480:
+        return "480p"
+    if dim >= 360:
+        return "360p"
+    if dim > 0:
+        return f"{dim}p"
+    return None
+
+
+def extract_quality(filename, width=None, height=None):
+    """
+    Extract video quality from filename, with optional Telegram width/height fallback.
+    Supports: 360p, [360p], 1080P, 720, WEB-DL, BluRay, etc.
+    """
+    if filename:
+        patterns = [
+            # [360p] (360p) {360p}
+            re.compile(
+                r'[\[\(\{][\s._-]*'
+                r'(360p?|480p?|540p?|576p?|720p?|900p?|1080p?|1440p?|2160p?|4K|2K|8K|'
+                r'HD(?:RIP)?|FHD|UHD|WEB(?:-)?DL|WEBRip|BLURAY|BDRip|DVDRip)'
+                r'[\s._-]*[\]\)\}]',
+                re.IGNORECASE,
+            ),
+            # bare tokens: .1080p. _720p_  360p
+            re.compile(
+                r'(?<![A-Za-z0-9])'
+                r'(360p|480p|540p|576p|720p|900p|1080p|1440p|2160p|4K|2K|8K)'
+                r'(?![A-Za-z0-9])',
+                re.IGNORECASE,
+            ),
+            # bare numbers near p or common in releases: 1080, 720
+            re.compile(
+                r'(?<![A-Za-z0-9])(360|480|540|576|720|900|1080|1440|2160)(?:p)?(?![A-Za-z0-9])',
+                re.IGNORECASE,
+            ),
+            re.compile(
+                r'(?<![A-Za-z0-9])(HD(?:RIP)?|FHD|UHD|WEB(?:-)?DL|WEBRip|BLURAY|BDRip|DVDRip)(?![A-Za-z0-9])',
+                re.IGNORECASE,
+            ),
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, filename)
+            if match:
+                return normalize_quality_label(match.group(1))
+
+    # Fallback: Telegram video dimensions
+    from_res = quality_from_resolution(width, height)
+    if from_res:
+        return from_res
 
     return None
+
+
+def extract_title_name(filename):
+    """
+    Extract the real anime/show title from a release filename.
+    Strips episode markers, quality, codecs, channel tags, brackets metadata, etc.
+    Example:
+      '[Episode 1] [360p] Kyonyuu ga Futari ... @Hanime_Universe.mp4'
+      → 'Kyonyuu ga Futari Inai to Bokki Shinai Otto no Tame ni Tomodachi wo Tsuretekita Tsuma'
+    """
+    if not filename:
+        return "Unknown"
+
+    name = os.path.splitext(filename)[0]
+
+    # Remove @channel / telegram handles
+    name = re.sub(r'@\w+', ' ', name)
+
+    # Remove common bracketed / parenthesized metadata blocks
+    # (episode, season, quality, audio, codec, resolution, site tags)
+    meta_inside = (
+        r'(?:'
+        r'S\d+[._\s-]*E\d+|'
+        r'E(?:P|pisode)?[.\s_-]*\d+|'
+        r'Episode[.\s_-]*\d+|'
+        r'Season[.\s_-]*\d+|'
+        r'\d{3,4}p|'
+        r'4K|2K|8K|'
+        r'HD(?:RIP)?|WEB(?:-)?DL|BLURAY|BDRip|DVDRip|'
+        r'X26[45]|H\.?26[45]|HEVC|AVC|AV1|'
+        r'DUAL(?:[\s._-]?AUDIO)?|MULTI(?:[\s._-]?AUDIO)?|'
+        r'AAC|AC3|DTS|FLAC|MP3|'
+        r'SUB|DUB|ENG|HINDI|JAP|JPN|TAMIL|TELUGU|'
+        r'BATCH|COMPLETE|REPACK|PROPER|'
+        r'NF|AMZN|DSNP|HULU|ATVP|'
+        r'\[?\d{3,4}x\d{3,4}\]?'
+        r')'
+    )
+    name = re.sub(r'[\[\(][\s._-]*' + meta_inside + r'[\s._-]*[\]\)]', ' ', name, flags=re.IGNORECASE)
+
+    # Remove unbracketed episode / season tokens
+    name = re.sub(r'(?i)(?:^|[\s._-])(?:S\d+[._\s-]*E\d+|E(?:P|pisode)?[.\s_-]*\d+|Episode[.\s_-]*\d+|Season[.\s_-]*\d+)(?=[\s._-]|$)', ' ', name)
+
+    # Remove unbracketed quality / codec tokens
+    name = re.sub(
+        r'(?i)(?:^|[\s._-])(?:\d{3,4}p|4K|2K|HD(?:RIP)?|WEB(?:-)?DL|BLURAY|X26[45]|H\.?26[45]|HEVC|AVC)(?=[\s._-]|$)',
+        ' ',
+        name,
+    )
+
+    # Remove leftover empty brackets
+    name = re.sub(r'[\[\(\{\]\}\)]', ' ', name)
+
+    # Normalize separators to spaces
+    name = re.sub(r'[._]+', ' ', name)
+    name = re.sub(r'\s+', ' ', name).strip(' -_')
+
+    # If nothing left, fall back to a short cleaned original
+    if not name or len(name) < 2:
+        fallback = os.path.splitext(filename)[0]
+        fallback = re.sub(r'[^A-Za-z0-9\s]', ' ', fallback)
+        fallback = re.sub(r'\s+', ' ', fallback).strip()
+        name = fallback[:60] if fallback else "Unknown"
+
+    return name
 
 @Client.on_message(filters.command("start_sequence") & filters.private)
 @check_ban
@@ -734,7 +876,16 @@ async def auto_rename_files(client, message):
             episode_number = extract_episode_number(file_name)
             season_number = extract_season_number(file_name)
             audio_info_extracted = extract_audio_info(file_name)
-            quality_extracted = extract_quality(file_name)
+
+            # Prefer filename quality; fallback to Telegram video dimensions
+            vid_w = vid_h = None
+            if message.video:
+                vid_w = getattr(message.video, "width", None)
+                vid_h = getattr(message.video, "height", None)
+            elif message.document and getattr(message.document, "thumbs", None):
+                # document-as-video sometimes has no width; leave None
+                pass
+            quality_extracted = extract_quality(file_name, width=vid_w, height=vid_h)
 
             print(f"DEBUG: Final extracted values - Season: {season_number}, Episode: {episode_number}, Quality: {quality_extracted}, Audio: {audio_info_extracted}")
 
@@ -781,23 +932,26 @@ async def auto_rename_files(client, message):
             quality_replacement = quality_extracted if quality_extracted else ""
             quality_patterns = [
                 re.compile(r'\{quality\}', re.IGNORECASE),
+                re.compile(r'\{Quality\}', re.IGNORECASE),
+                re.compile(r'\{QUALITY\}', re.IGNORECASE),
                 re.compile(r'\bQuality\b', re.IGNORECASE),
+                re.compile(r'\bQUALITY\b'),
             ]
 
             for pattern in quality_patterns:
                 template = pattern.sub(quality_replacement, template)
 
-            # {name} = first 3 letters of original filename (without extension)
-            original_base = os.path.splitext(file_name)[0] if file_name else ""
-            # Keep only alphanumeric for a clean short name
-            clean_base = re.sub(r'[^A-Za-z0-9]', '', original_base)
-            name_short = (clean_base[:3] if clean_base else "FIL").upper()
+            # {name} = first 3 words of the real title from the original filename
+            # e.g. "Kyonyuu ga Futari Inai to Bokki ..." → "Kyonyuu ga Futari"
+            full_title = extract_title_name(file_name)
+            title_words = full_title.split()
+            title_name = " ".join(title_words[:3]) if title_words else full_title
             name_patterns = [
                 re.compile(r'\{name\}', re.IGNORECASE),
                 re.compile(r'\{NAME\}', re.IGNORECASE),
             ]
             for pattern in name_patterns:
-                template = pattern.sub(name_short, template)
+                template = pattern.sub(title_name, template)
 
             template = re.sub(r'\[\s*\]', '', template)
             template = re.sub(r'\(\s*\)', '', template)
