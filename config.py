@@ -56,7 +56,7 @@ class Config(object):
 ➲ {audio} / Audio - ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ᴀᴜᴅɪᴏ ɪɴꜰᴏ
 ➲ {name} - ꜰɪʀꜱᴛ 3 ʟᴇᴛᴛᴇʀꜱ ᴏꜰ ᴏʀɪɢɪɴᴀʟ ꜰɪʟᴇ ɴᴀᴍᴇ
 
-<b>‣ ꜰᴏʀ ᴇx:- </b>`/autorename [S{season} E{episode}] {name} Your Anime Name [Quality] [Audio] @Honkai_Bots`
+<b>‣ ꜰᴏʀ ᴇx:- </b>`/autorename [S{season} E{episode}] {name} [Quality] [Audio]`
 
 Don't use .mkv/.mp4, Bot Will Detect The Format Automatically
 
@@ -98,8 +98,7 @@ Don't use .mkv/.mp4, Bot Will Detect The Format Automatically
 <b><i>💞  ɪꜰ ʏᴏᴜ ʟɪᴋᴇ ᴏᴜʀ ʙᴏᴛ ꜰᴇᴇʟ ꜰʀᴇᴇ ᴛᴏ ᴅᴏɴᴀᴛᴇ ᴀɴʏ ᴀᴍᴏᴜɴᴛ ₹𝟷𝟶, ₹𝟸𝟶, ₹𝟻𝟶, ₹𝟷𝟶𝟶, ᴇᴛᴄ.</i></b>
 
 ᴅᴏɴᴀᴛɪᴏɴs ᴀʀᴇ ʀᴇᴀʟʟʏ ᴀᴘᴘʀᴇᴄɪᴀᴛᴇᴅ ɪᴛ ʜᴇʟᴘs ɪɴ ʙᴏᴛ ᴅᴇᴠᴇʟᴏᴘᴍᴇɴᴛ
-ɪғ ʏᴏᴜ ᴡɪsʜ ʏᴏᴜ ᴄᴀɴ sᴇɴᴅ ᴜs ss
-ᴏɴ - @Honkai_Bots"""
+ɪғ ʏᴏᴜ ᴡɪsʜ ʏᴏᴜ ᴄᴀɴ sᴇɴᴅ ᴜs ss"""
 
     HELP_TXT = """<b>ʜᴇʀᴇ ɪꜱ ʜᴇʟᴘ ᴍᴇɴᴜ ɪᴍᴘᴏʀᴛᴀɴᴛ ᴄᴏᴍᴍᴀɴᴅꜱ:
 
